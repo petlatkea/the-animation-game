@@ -33,7 +33,7 @@ function start() {
 }
 
 function calculateSizes() {
-  TILESIZE = tiles[0][0].element.width;
+  TILESIZE = tiles[0][0].element.offsetWidth;
   player.width = HTML.player.offsetWidth;
   player.regX = player.width / 2;
   player.height = HTML.player.offsetHeight;
@@ -160,7 +160,7 @@ function canMove( object, offsetX, offsetY ) {
        
           // ask if we can move to the specified position on this tile
           // TODO: Maybe x and y should be offset rather than absolutes ...
-          canMove = canMove && canMoveToTile( object, tile, object.x-object.regX+offsetX-tile.x, object.y-object.regY+offsetY );
+          canMove = canMove && canMoveToTile( object, tile, offsetX, offsetY );
           // TODO: Can't move into boxes from below!
         }
       }
@@ -270,6 +270,29 @@ function showSign( sign ) {
   }
 }
 
+function jumpIntoBox( box ) {
+  // let box jump
+  box.element.classList.add("boink");
+  box.element.addEventListener("animationend", function() {
+    box.element.addEventListener("animationend", removeBox );
+  } );
+
+  function removeBox( ) {
+    box.element.className = "tile empty";
+    box.element.style.backgroundImage = `url('Tiles/space.png')`;
+    
+    // create new empty
+    const tile = Object.create( TileTypes[" "] );
+    tile.x = box.x;
+    tile.y = box.y;
+    tiles[tile.y][tile.x] = tile;
+    tile.element = box.element;
+  }
+
+  // modify background image on box
+  box.element.style.backgroundImage = `url('Tiles/${box.name}.png')`;
+}
+
 function touchTile( tile, distance ) {
   switch( tile.type ) {
     case "empty":
@@ -279,35 +302,54 @@ function touchTile( tile, distance ) {
       // these types are ignored completely
     break;
     case "info": 
-      console.log(distance);
+    console.warn("INFO");
+//      console.log(distance);
       if( distance < TILESIZE/4 ) {
         if( tile.name === "sign" ) {
           showSign( tile );
         }
-//        console.log("Hit info box!");
-//        console.log( tile );
       }
       break;
+    case "box": {
+      jumpIntoBox( tile );
+      console.warn("BOX");
+      player.jumping = false;
+      player.y+= 10; // TODO: This number seems random ... check what it actually should be
+
+    }
     default: 
     
       console.log("touch " + tile.type);
-      console.log(tile);
-      console.log(distance);
+//      console.log(tile);
+//      console.log(distance);
   }
   
 }
 
 function canMoveToTile( object, tile, x, y ) {
-  let canMove = true;
+  let canMove = false;
 
   switch( tile.block ) {
     case "platform":
       if( tile.type === "box"  ) {
-        canMove = true;
-      } else {
-        canMove = false; // TODO: Unless it is a type = box, and we are moving from below!
+        // are we moving from below? - jumping?
+        if( player.jumping && player.y > tile.y*TILESIZE ) {
+          console.log("jumping into");
+          if( object.y-object.regY+object.hitY > (tile.y+1)*TILESIZE ) {
+            canMove = true;
+          }
+        }
+      //     // only accept a few pixels
+      //     console.log(`ønsket y: ${y} - har ${tile.y*TILESIZE} - forskel = ${y-tile.y*TILESIZE}`);
+      //     console.warn("JUMP INTO!");
+      //     if( y-tile.y*TILESIZE > TILESIZE/2 ) {
+      //       canMove = true;
+      //     }
+      //   } else {
+      //     console.log("trying?")
+      //   }
+      } 
 
-      }
       break;
     case "empty":
     case "background":
@@ -456,8 +498,6 @@ function drawPlayer() {
   hitbox.style.height = player.hitH +"px";
   hitbox.style.left = player.hitX + "px";
   hitbox.style.top = player.hitY + "px";
-
-  
 }
 
 function getSelectors() {
@@ -544,11 +584,8 @@ function buildLevel() {
       tile.y = y;
 
       // create element
-      const div = document.createElement("div");
-      div.classList.add("tile");
-      const element = document.createElement("img");
+      const element = document.createElement("div");
       element.classList.add("tile");
-
      
       // check for custom fillers
       if( tile.type === "filler" ) {
@@ -577,9 +614,9 @@ function buildLevel() {
       }
 
 
-      element.src = "Tiles/"+image+".png";
-      element.alt = tile.name;
+      element.style.backgroundImage = `url('Tiles/${image}.png')`;
       element.classList.add(tile.name);
+      element.classList.add(tile.type);
 
       last = code;
       
@@ -615,8 +652,7 @@ function buildLevel() {
 
       tile.element = element;
       tiles[y][x] = tile;
-      div.append(element);
-      HTML.platforms.append(div);
+      HTML.platforms.append(element);
 
       
     }
@@ -631,7 +667,7 @@ function buildLevel() {
     // create text element
     const span = document.createElement("span");
     span.innerHTML = sign.short;
-    tile.element.parentElement.append(span);
+    tile.element.append(span);
   })
 
   // TODO: Prepare info-boxes
@@ -657,15 +693,15 @@ const TileTypes = {
          type: "slope",
          direction: "down",
          image: "grassHillRight"},
-  "X": { name: "box",
+  "X": { name: "boxAlt",
          block: "platform",
          type: "box",
          image: "boxAlt"},
-  "O": { name: "box",
+  "O": { name: "boxCoin",
          type: "box",
          block: "platform",
          image: "boxCoin_disabled"},
-  "!": { name: "box",
+  "!": { name: "boxItem",
          block: "platform",
          type: "box",
          image: "boxItem_disabled"},
@@ -687,7 +723,7 @@ const platforms =["                           ",
                   "              !            ",
                   "                           ",
                   "                           ",
-                  "         !  XOXOX          ",
+                  " !       !  XOXOX          ",
                   "                           ",
                   "  /GG\\                     ",
                   " /####\\  =                 ",

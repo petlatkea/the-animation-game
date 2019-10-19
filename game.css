@@ -25,11 +25,12 @@ body {
 
 #platforms div {position: relative;}
 
-#platforms img.tile {
-  width: 100%;
+#platforms .tile {
+  
+  background-size: cover;
 }
 
-#platforms .tile .sign + span {
+#platforms .tile.sign span {
   position: absolute;
   left: 0;
   top: 1vh;
@@ -46,6 +47,7 @@ body {
 
 /* info box */
 #info {
+  pointer-events: none;
   position: fixed;
   top: 0;
   left: 0;
@@ -61,6 +63,7 @@ body {
 }
 
 #sign {
+  pointer-events:all;
   width: 40vw;
   border: 4vh ridge #c4905fd0;
   box-shadow: -.5vh -.5vh 8px #ae7640d0, .5vh .5vh 8px #705236e0; 
@@ -143,6 +146,68 @@ body {
   font-size: 3vh;
 }
 
+/* BOXES */
+.boink {
+  animation: bounce 0.9s both, zoomBox 0.8s 0.9s ease-in forwards;
+}
+
+@keyframes zoomBox {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+
+  30% {
+    transform: translateY(0) scale(2.2);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(-40vh) scale(10);
+    opacity: 0;
+  }
+}
+
+
+@keyframes bounce {
+  0% {
+    transform: translateY(-45px);
+    animation-timing-function: ease-in;
+    opacity: 1;
+  }
+  24% {
+    opacity: 1;
+  }
+  40% {
+    transform: translateY(-24px);
+    animation-timing-function: ease-in;
+  }
+  65% {
+    transform: translateY(-12px);
+    animation-timing-function: ease-in;
+  }
+  82% {
+    transform: translateY(-6px);
+    animation-timing-function: ease-in;
+  }
+  93% {
+    transform: translateY(-4px);
+    animation-timing-function: ease-in;
+  }
+  25%,
+  55%,
+  75%,
+  87% {
+    transform: translateY(0px);
+    animation-timing-function: ease-out;
+  }
+  100% {
+    transform: translateY(0px);
+    animation-timing-function: ease-out;
+    opacity: 1;
+  }
+}
+
 
 
 /* player */
@@ -187,6 +252,7 @@ body {
 }
 
 #player .hitbox {
+  /*
   position: absolute;
   background-color:rgba(0, 128, 0, .2);
   width: 100%;
@@ -194,6 +260,7 @@ body {
   left: 0;
   height: 100%;
   outline: 2px dashed lightgreen;
+  */
 }
 
 @keyframes dust-settle {
