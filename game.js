@@ -39,14 +39,12 @@ function calculateSizes() {
   player.height = HTML.player.offsetHeight;
   player.regY = player.height /2;
 
+  // TODO: These custom calculations for the hitbox, should really be configurable somehow ...
   player.hitX = player.width/8*1.8;
   player.hitY = player.height/8*1.3;
   player.hitW = player.width/8*4;
   player.hitH = player.height/8 * 5.5;
 
-
-
-  // TODO: Calculate hitbox;
 }
 
 function animationLoop() {
@@ -54,7 +52,6 @@ function animationLoop() {
 
   movePlayer();
 
-  // handle collisions
   handlePlayerCollisions();
 
   animatePlayer();
@@ -83,6 +80,7 @@ const player = {
   alive:  true,
   hasKey:  false,
   
+  // The sprite property has a setter to avoid resetting it to the same value over and over
   set sprite( spriteName ) {
     if( spriteName !== this._sprite ) {
 
@@ -92,7 +90,6 @@ const player = {
       HTML.player.classList.add( spriteName );
 
       this._sprite = spriteName;
-
     }
   },
 
@@ -151,8 +148,6 @@ function canMove( object, offsetX, offsetY ) {
   let bottomTile = Math.floor((object.y-object.regY+object.hitY+object.hitH+offsetY) / TILESIZE);
 
   let canMove = true;
-
-  //debugger;
   
   for( let x=leftTile; x <= rightTile; x++ ) {
       for( let y=topTile; y <= bottomTile; y++ ) {
@@ -166,6 +161,7 @@ function canMove( object, offsetX, offsetY ) {
           // ask if we can move to the specified position on this tile
           // TODO: Maybe x and y should be offset rather than absolutes ...
           canMove = canMove && canMoveToTile( object, tile, object.x-object.regX+offsetX-tile.x, object.y-object.regY+offsetY );
+          // TODO: Can't move into boxes from below!
         }
       }
   }
@@ -233,18 +229,48 @@ function handlePlayerCollisions() {
 
             
             let tile = tiles[y][x];
+            const distance = Math.hypot( (x*TILESIZE-TILESIZE/2) - (player.x-player.regX), (y*TILESIZE-TILESIZE/2) - (player.y-player.regY) );
+            
             
             // handle touching this tile
             // remember - we were told that we COULD move here - now we have ...
             if( tile.type !== "empty") {
-              touchTile( tile );
+              touchTile( tile, distance );
             }
           }
       }
   }
 }
 
-function touchTile( tile ) {
+function showSign( sign ) {
+  if( !sign.sign.active ) {
+    sign.sign.active = true;
+
+    // set display values
+    document.querySelector("#sign h1").innerHTML = sign.sign.heading;
+    document.querySelector("#sign p").innerHTML = sign.sign.text;
+
+    // TODO: Make sign-animation show up from where it is positioned on the screen!
+    
+    // show animation
+    document.querySelector("#sign").classList.remove("hidden");
+    document.querySelector("#sign").classList.add("show");
+
+    // activate close-button
+    document.querySelector("#sign button").addEventListener("click", closeSign);
+
+    function closeSign( ) {
+      document.querySelector("#sign").classList.remove("show");
+      document.querySelector("#sign").classList.add("hide");
+
+      // TODO: Make signs work again
+    }
+
+
+  }
+}
+
+function touchTile( tile, distance ) {
   switch( tile.type ) {
     case "empty":
     case "slope":
@@ -252,10 +278,21 @@ function touchTile( tile ) {
     case "platform":
       // these types are ignored completely
     break;
+    case "info": 
+      console.log(distance);
+      if( distance < TILESIZE/4 ) {
+        if( tile.name === "sign" ) {
+          showSign( tile );
+        }
+//        console.log("Hit info box!");
+//        console.log( tile );
+      }
+      break;
     default: 
     
       console.log("touch " + tile.type);
       console.log(tile);
+      console.log(distance);
   }
   
 }
@@ -265,7 +302,12 @@ function canMoveToTile( object, tile, x, y ) {
 
   switch( tile.block ) {
     case "platform":
-      canMove = false;
+      if( tile.type === "box"  ) {
+        canMove = true;
+      } else {
+        canMove = false; // TODO: Unless it is a type = box, and we are moving from below!
+
+      }
       break;
     case "empty":
     case "background":
@@ -498,8 +540,12 @@ function buildLevel() {
 
       // create tile object
       const tile = Object.create( TileTypes[code] );
+      tile.x = x;
+      tile.y = y;
 
       // create element
+      const div = document.createElement("div");
+      div.classList.add("tile");
       const element = document.createElement("img");
       element.classList.add("tile");
 
@@ -569,61 +615,71 @@ function buildLevel() {
 
       tile.element = element;
       tiles[y][x] = tile;
-      HTML.platforms.append(element);
+      div.append(element);
+      HTML.platforms.append(div);
 
       
     }
   }
-  // add that to the platforms div
+  
+  // find signs
+  signs.forEach( sign => {
+    // find the tile for this sign
+    const tile = tiles[sign.y][sign.x];
+    tile.sign = sign;
+
+    // create text element
+    const span = document.createElement("span");
+    span.innerHTML = sign.short;
+    tile.element.parentElement.append(span);
+  })
+
+  // TODO: Prepare info-boxes
 
 }
 
 const TileTypes = {
-  " ": {
-    type: "empty",
-    block: "empty",
-    image: "space"},
-  "#": {
-    type: "filler"
-  },
+  " ": { type: "empty",
+         block: "empty",
+         image: "space"},
+  "#": { type: "filler"},
   "G": { name: "grass",
-  block: "background",
+         block: "background",
          type: "platform",
          image: "grass"},
   "/": { name: "grassHill",
-  block: "background",
-          type: "slope",
-          direction: "up",
-        image: "grassHillLeft"},
+         block: "background",
+         type: "slope",
+         direction: "up",
+         image: "grassHillLeft"},
   "\\": { name: "grassHill",
-  block: "background",
-          type: "slope",
-          direction: "down",
-        image: "grassHillRight"},
+         block: "background",
+         type: "slope",
+         direction: "down",
+         image: "grassHillRight"},
   "X": { name: "box",
-        block: "platform",
-        type: "box",
-      image: "boxAlt"},
+         block: "platform",
+         type: "box",
+         image: "boxAlt"},
   "O": { name: "box",
-        type: "box",
-        block: "platform",
-      image: "boxCoin_disabled"},
+         type: "box",
+         block: "platform",
+         image: "boxCoin_disabled"},
   "!": { name: "box",
-  block: "platform",
-      type: "box",
-    image: "boxItem_disabled"},
+         block: "platform",
+         type: "box",
+         image: "boxItem_disabled"},
   "=": { name: "sign",
-  block: "background",
-      type: "info",
-    image: "sign"},
-  
+         block: "background",
+         type: "info",
+         image: "sign"},
   "S": { name: "sand",
-  block: "platform",
-          image: "sand"},
+         block: "platform",
+         image: "sand"},
   "R": { name: "rock",
-      type: "platform",
-      block: "platform",
-          image: "castle"}
+         type: "platform",
+         block: "platform",
+         image: "castle"}
 }
 
 const platforms =["                           ",
@@ -636,4 +692,8 @@ const platforms =["                           ",
                   "  /GG\\                     ",
                   " /####\\  =                 ",
                   "RRRRRRRRRRRRRRRRRRRRRRRRRRR"
+];
+
+const signs = [
+  { "x": 9, "y": 8, "short": "Jump", "heading": "Did you know that", "text": "You can press 'space' to jump.<br>Use it to jump onto platforms, and into boxes.", "active": false }
 ]
