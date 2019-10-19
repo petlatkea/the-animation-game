@@ -39,10 +39,12 @@ function calculateSizes() {
   player.height = HTML.player.offsetHeight;
   player.regY = player.height /2;
 
-  player.hitX = 0;
+  player.hitX = player.width/8*1.8;
   player.hitY = player.height/8*1.3;
-  player.hitW = player.width;
+  player.hitW = player.width/8*4;
   player.hitH = player.height/8 * 5.5;
+
+
 
   // TODO: Calculate hitbox;
 }
@@ -53,6 +55,7 @@ function animationLoop() {
   movePlayer();
 
   // handle collisions
+  handlePlayerCollisions();
 
   animatePlayer();
 
@@ -180,6 +183,83 @@ function canMove( object, offsetX, offsetY ) {
   return canMove;
 }
 
+function predictiveHitTest( objA, objB, offsetAx=0, offsetAy=0 ) {
+  if( objB.x-objB.regX+objB.hitX < objA.x-objA.regX+objA.hitX+objA.hitW+offsetAx &&
+      objB.x-objB.regX+objB.hitX+objB.hitW > objA.x-objA.regX+objA.hitX+offsetAx &&
+      objB.y-objB.regY+objB.hitY+objB.hitH > objA.y-objA.regY+objA.hitY+offsetAy &&
+      objB.y-objB.regY+objB.hitY < objA.y-objA.regY+objA.hitY+objA.hitH+offsetAy ) {
+      return true;
+  } else {
+      return false;
+  }
+}
+
+function handlePlayerCollisions() {
+  // handle all the tiles the player is touching
+  // - reuse code from canMoveTo
+  let leftTile = Math.floor((player.x-player.regX+player.hitX) / TILESIZE);
+  let rightTile = Math.floor((player.x-player.regX+player.hitX+player.hitW) / TILESIZE);
+  let topTile = Math.floor((player.y-player.regY+player.hitY) / TILESIZE);
+  let bottomTile = Math.floor((player.y-player.regY+player.hitY+player.hitH) / TILESIZE);
+
+  for( let x=leftTile; x <= rightTile; x++ ) {
+      for( let y=topTile; y <= bottomTile; y++ ) {
+          /* Maybe handle items later ...
+          let item = items[y][x];
+          
+          if(item != null ) {
+              if( predictiveHitTest(player,item) ) {
+                  console.log("touch item! " + item.type);
+                  if( item.type == "star" ) {
+                      // play random bell-sound
+                      let nr = Math.floor(Math.random()*4)+1;
+                      createjs.Sound.play("sndBell"+nr);
+                      // TODO: Remove with animation
+                      
+                      // remove star
+                      stage.removeChild(item);
+                      items[y][x] = null;
+                  } else if( item.type == "keyBlue") {
+                      createjs.Sound.play("sndKey");
+                      stage.removeChild(item);
+                      items[y][x] = null;
+                      
+                      player.hasKey = true;
+                  }
+              }
+          } */
+          
+          if( 0 <= y && y < tiles.length ) {
+
+            
+            let tile = tiles[y][x];
+            
+            // handle touching this tile
+            // remember - we were told that we COULD move here - now we have ...
+            if( tile.type !== "empty") {
+              touchTile( tile );
+            }
+          }
+      }
+  }
+}
+
+function touchTile( tile ) {
+  switch( tile.type ) {
+    case "empty":
+    case "slope":
+    case "filler":
+    case "platform":
+      // these types are ignored completely
+    break;
+    default: 
+    
+      console.log("touch " + tile.type);
+      console.log(tile);
+  }
+  
+}
+
 function canMoveToTile( object, tile, x, y ) {
   let canMove = true;
 
@@ -226,23 +306,21 @@ function animatePlayer() {
       } else {
         // no longer jumping
         player.sprite = "landing";
-        console.log("landing");
+        console.log("landing"); 
       }
       break;
     case "falling":
       if( ! canMove(player,0,1) ) {
         player.sprite = "landing";
+        console.log("landing");
       }
       break;
     case "landing":
 
-        console.log( player.fallFrom );
-        
-
-        if( player.y - player.fallFrom > 500 ) {
-
-        // TODO: Only dust if falling from very high up!
-        HTML.playerEffect.classList.add("dust"); // TODO: Function for effects
+        if( player.y - player.fallFrom > 500 ) { // TODO: Bedre tal her - i forhold til jump-height
+          // Only dust if falling from very high up!
+          HTML.playerEffect.classList.add("dust"); // TODO: Function for effects
+        }
         HTML.player.querySelector(".sprite").addEventListener("animationend", landed);
   
         function landed() {
@@ -250,12 +328,8 @@ function animatePlayer() {
           HTML.playerEffect.classList.remove("dust");
           player.sprite = "idle";
         }
-      } else {
-        player.sprite = "idle";
-      }
-
+        
       break;
-    
     
   }
 
@@ -334,6 +408,14 @@ function movePlayer() {
 function drawPlayer() {
   HTML.player.style.left = player.x-player.regX + "px";
   HTML.player.style.top = player.y-player.regY + "px";
+
+  const hitbox = document.querySelector("#player .hitbox");
+  hitbox.style.width = player.hitW +"px";
+  hitbox.style.height = player.hitH +"px";
+  hitbox.style.left = player.hitX + "px";
+  hitbox.style.top = player.hitY + "px";
+
+  
 }
 
 function getSelectors() {

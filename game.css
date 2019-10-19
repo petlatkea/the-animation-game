@@ -66,6 +66,16 @@ body {
 
 }
 
+#player .hitbox {
+  position: absolute;
+  background-color:rgba(0, 128, 0, .2);
+  width: 100%;
+  top: 0;
+  left: 0;
+  height: 100%;
+  outline: 2px dashed lightgreen;
+}
+
 @keyframes dust-settle {
   0% {
     opacity: 0;
