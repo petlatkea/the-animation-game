@@ -1,0 +1,152 @@
+body {
+  margin: 0;
+  padding: 0;
+
+}
+
+#screen {
+  width: 100vw;
+  height: 100vh;
+  background-color: azure;
+  overflow: hidden;
+  
+}
+
+#stage {
+  --cols: 6;
+  --rows: 2;
+}
+
+#platforms {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), 10vh);
+  grid-template-rows: repeat(var(--rows), 10vh);
+}
+
+#platforms .tile {
+  width: 100%;
+}
+
+#player {
+  /* outline: 2px solid red; */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 15vh;
+  height: 15vh;
+}
+
+#player .sprite {
+  background-image: url('character.svg'); /* TODO: Make SVG! */
+  width: 100%;
+  height: 100%;
+  background-position: 0px 0px;
+  background-size: 700% 300%;
+}
+
+#player .effect {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  
+  background-image: url('effects.svg');
+  background-size: 600% 200%;
+
+  height: 50%;
+  width: 100%;  
+  opacity: 0;
+}
+
+#player .effect.dust { 
+  background-position: 0 0;
+  animation: dust-settle .3s ease-in 1 forwards;
+  transform-origin: bottom;
+
+  
+
+}
+
+@keyframes dust-settle {
+  0% {
+    opacity: 0;
+    transform: translatey(-1.8vh) scale(0,0);
+  }
+
+  30% {
+    opacity: 1;
+    transform: translateY(-1.8vh) scale(1,1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-1.8vh) scale(.6,.2);
+  }
+}
+
+#player.standing, 
+#player.landing {
+  
+
+}
+
+#player.standing .sprite {
+  background-position: 0px 0px;
+}
+
+#player.idle .sprite {
+  animation: idle 1s steps(5) infinite alternate;
+}
+
+@keyframes idle {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -500% 0%
+  }
+}
+
+#player.falling {
+  /* animation: falling 1.5s ease-in 1 forwards; */
+}
+
+@keyframes falling {
+  from {
+    transform: translateY(-15vh);
+  }
+
+  to {
+    transform: translateY(77.5vh);
+  }
+}
+
+#player.falling .sprite {
+  background-position: 0px 0px;
+  /* animation: walkcycle 1s steps(6) infinite; */
+}
+
+#player.walking .sprite {
+  animation: walkcycle .6s steps(6) infinite;
+}
+
+@keyframes walkcycle {
+  from {
+    background-position: -100% -100%;
+  }
+  to {
+    background-position: -700% -100%;
+  }
+}
+
+#player.landing .sprite {
+  animation: landing .7s steps(3) 1;
+}
+
+@keyframes landing {
+  from {
+    background-position: -000% -200%;
+  }
+  to {
+    background-position: -300% -200%;
+  }
+}
