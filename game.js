@@ -106,7 +106,28 @@ const keys = {
   down: false,
   left: false,
   right: false,
-  space: false
+  space: false,
+  escape: false,
+  listeners: [],
+  addListener( code, func ) {
+    let listener = this.findListener( code, func );
+    if(!listener) {
+      listener = {code,func};
+    }
+    this.listeners.push( listener );
+  },
+  removeListener( code, func ) {
+    const listener = this.findListener( code, func );
+    if( listener ) {
+      const index = this.listeners.indexOf( listener );
+      this.listeners.splice(index,1);
+    }
+  },
+  findListener( code, func ) {
+    const listener = this.listeners.find( lsn => lsn.code === code && lsn.func === func );
+    return listener;
+  }
+
 };
 
 function key(evt) {
@@ -123,13 +144,27 @@ function key(evt) {
       keys.right = value;
   } else if(evt.code=="Space") {
       keys.space = value;
+  } else if(evt.code==="Escape") {
+      console.log("escape key");
+      keys.escape = value;
   } else {
     // no valid key
     preventDefault = false;
   }
 
+  // check for key-listeners - but only on keyup!
+  if(!value) {
+
+    keys.listeners.forEach( listener => {
+      if( listener.code === evt.code ) {
+        listener.func();
+      }
+    });
+  }
+
+
   if( preventDefault ) {
-    evt.preventDefault();
+//    evt.preventDefault();
   }
 }
 
@@ -261,8 +296,12 @@ function showSign( sign ) {
 
     // activate close-button
     document.querySelector("#sign button").addEventListener("click", closeSign);
+    keys.addListener("Escape", closeSign);
+    document.querySelector("#sign button").focus();
 
     function closeSign( ) {
+      document.querySelector("#sign button").removeEventListener("click", closeSign);
+      keys.removeListener("Escape", closeSign);
       document.querySelector("#sign").classList.remove("show");
       document.querySelector("#sign").classList.add("hide");
 
@@ -299,9 +338,11 @@ function jumpIntoBox( box ) {
     // make event
     slide.addEventListener("click", closeSlide);
     // TODO: Also accept escapekey!
+    keys.addListener("Escape", closeSlide);
 
     function closeSlide() {
       slide.removeEventListener("click", closeSlide);
+      keys.removeListener("Escape", closeSlide);
       slide.classList.remove("bounceInDown");
       slide.classList.add("bounceOutUp");
       slide.addEventListener("animationend", hideSlide);
