@@ -57,8 +57,11 @@ function animationLoop() {
   animatePlayer();
 
   // TODO: handle camera
+  moveCamera();
 
   drawPlayer();
+
+
 }
 
 const player = {
@@ -276,7 +279,9 @@ function jumpIntoBox( box ) {
   // let box jump
   box.element.classList.add("boink");
   box.element.addEventListener("animationend", function() {
-    showSlide();
+    if( box.box && box.box.slide ) {
+      showSlide();
+    }
     box.element.addEventListener("animationend", removeBox );
   } );
 
@@ -307,6 +312,7 @@ function jumpIntoBox( box ) {
 
 
   function removeBox( ) {
+    console.log("removed box");
     box.element.className = "tile empty";
     box.element.style.backgroundImage = `url('Tiles/space.png')`;
     
@@ -588,6 +594,66 @@ function setCurrentPlayerPosition() {
   }
 }
 
+const camera = {
+  x:0,
+  y:0
+}
+
+function moveCamera() {
+  // const xoffset = player.x-stage.regX;
+  // const yoffset = player.y-stage.regY;
+
+  // const xmargin = 192;
+  // const ymargin = 192;
+
+  // const c_height = stage.canvas.height;
+  // const s_height = stage.getBounds().height;
+
+  // const c_width = stage.canvas.width;
+  // const s_width = stage.getBounds().width;
+
+  const totalWidth = HTML.screen.scrollWidth;
+  const totalHeight = HTML.screen.scrollHeight;
+
+  const visibleWidth = HTML.screen.offsetWidth;
+  const visibleHeight = HTML.screen.offsetHeight;
+
+
+
+  // move the camera, so the player is in center of the view
+  let desiredX = player.x - visibleWidth/2;
+  let desiredY = player.y - visibleHeight/2;
+  
+  // set desired x and y directly
+//    camera.x = desiredX;
+//    camera.y = desiredY;
+  // doesn't really feel like we move the camera - more like we move the stage around the player
+  
+  // gradually move the camera towards desired (in 25 frames)
+  camera.x += (desiredX-camera.x)/25;
+  camera.y += (desiredY-camera.y)/25;
+  
+  // don't move outside the stage
+  if( camera.x < 0 ) {
+      camera.x = 0;
+  }
+  if( camera.x > totalWidth-visibleWidth ) {
+      camera.x = totalWidth-visibleWidth;
+  }
+  if( camera.y < 0 ) {
+      camera.y = 0;
+  }
+  if( camera.y > totalHeight-visibleHeight ) {
+      camera.y = totalHeight-visibleHeight;
+  }
+
+  // scroll to
+  HTML.screen.scrollTo(camera.x, camera.y);
+//  stage.regX = camera.x;
+//  stage.regY = camera.y;
+}
+
+
 let tiles = [];
 
 function buildLevel() {
@@ -765,7 +831,7 @@ const platforms =["                           ",
                   "         !  XOXOX          ",
                   "                           ",
                   "  /GG\\                     ",
-                  " /####\\  =                 ",
+                  " /####\\  =       RRR       ",
                   "RRRRRRRRRRRRRRRRRRRRRRRRRRR"
 ];
 
