@@ -75,7 +75,7 @@ const player = {
   speedX:  0,
   speedY:  0,
   direction:  1,
-  walkSpeed:  3,
+  walkSpeed:  8, // used to be 3
   jumpPower:  12,
   alive:  true,
   hasKey:  false,
@@ -246,6 +246,8 @@ function showSign( sign ) {
   if( !sign.sign.active ) {
     sign.sign.active = true;
 
+// TEMPORARYLY DISABLED
+/*
     // set display values
     document.querySelector("#sign h1").innerHTML = sign.sign.heading;
     document.querySelector("#sign p").innerHTML = sign.sign.text;
@@ -265,7 +267,7 @@ function showSign( sign ) {
 
       // TODO: Make signs work again
     }
-
+*/
 
   }
 }
@@ -274,8 +276,35 @@ function jumpIntoBox( box ) {
   // let box jump
   box.element.classList.add("boink");
   box.element.addEventListener("animationend", function() {
+    showSlide();
     box.element.addEventListener("animationend", removeBox );
   } );
+
+  function showSlide() {
+    // show slide
+    const slide = document.querySelector("#slides #"+box.box.slide);
+    // make visible
+    slide.classList.remove("hidden");
+    slide.classList.add("bounceInDown");
+
+    // make event
+    slide.addEventListener("click", closeSlide);
+    // TODO: Also accept escapekey!
+
+    function closeSlide() {
+      slide.removeEventListener("click", closeSlide);
+      slide.classList.remove("bounceInDown");
+      slide.classList.add("bounceOutUp");
+      slide.addEventListener("animationend", hideSlide);
+
+      function hideSlide() {
+        slide.removeEventListener("animationend", hideSlide);
+        slide.classList.add("hidden");
+      }
+
+    }
+  }
+
 
   function removeBox( ) {
     box.element.className = "tile empty";
@@ -287,6 +316,11 @@ function jumpIntoBox( box ) {
     tile.y = box.y;
     tiles[tile.y][tile.x] = tile;
     tile.element = box.element;
+
+   
+
+
+
   }
 
   // modify background image on box
@@ -670,7 +704,12 @@ function buildLevel() {
     tile.element.append(span);
   })
 
-  // TODO: Prepare info-boxes
+  // find boxes
+  boxes.forEach( box => {
+    const tile = tiles[box.y][box.x];
+    tile.box = box;
+    // Is that it?
+  })
 
 }
 
@@ -723,7 +762,7 @@ const platforms =["                           ",
                   "              !            ",
                   "                           ",
                   "                           ",
-                  " !       !  XOXOX          ",
+                  "         !  XOXOX          ",
                   "                           ",
                   "  /GG\\                     ",
                   " /####\\  =                 ",
@@ -732,4 +771,9 @@ const platforms =["                           ",
 
 const signs = [
   { "x": 9, "y": 8, "short": "Jump", "heading": "Did you know that", "text": "You can press 'space' to jump.<br>Use it to jump onto platforms, and into boxes.", "active": false }
+]
+const boxes = [
+  { "x": 9, "y": 5, "slide": "slide-1", activated: false },
+  { "x": 13, "y": 5, "slide": "slide-2", activated: false },
+  { "x": 15, "y": 5, "slide": "slide-3", activated: false }
 ]
