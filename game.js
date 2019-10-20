@@ -357,29 +357,42 @@ function jumpIntoBox( box ) {
     }
   }
 
-
   function removeBox( ) {
     console.log("removed box");
-    box.element.className = "tile empty";
-    box.element.style.backgroundImage = `url('Tiles/space.png')`;
     
     // create new empty
-    const tile = Object.create( TileTypes[" "] );
-    tile.x = box.x;
-    tile.y = box.y;
-    tiles[tile.y][tile.x] = tile;
-    tile.element = box.element;
-
-   
-
-
-
+    replaceTileWithEmpty( box );
   }
 
-  // modify background image on box
-  // TODO: This is supposed to be different
-  box.element.style.backgroundImage = `url('Tiles/${box.name}.png')`;
+  // modify background image on box to be active
+  box.element.style.backgroundImage = `url('Tiles/${box.imageActive}.png')`;
 }
+
+function replaceTileWithEmpty( tile ) {
+  // create empty tile - and element
+  const empty = Object.create( TileTypes[" "] );
+  const element = document.createElement("div");
+  element.classList.add("tile");
+  element.style.backgroundImage = `url('Tiles/${empty.image}.png')`;
+  element.classList.add(empty.name);
+  element.classList.add(empty.type);
+
+  empty.element = element;
+  
+  empty.x = tile.x;
+  empty.y = tile.y;
+
+  // replace tile
+  tiles[empty.y][empty.x] = empty;
+
+  // replace element
+  tile.element.replaceWith( empty.element );
+}
+
+function pickUpKey( key ) {
+
+}
+
 
 function touchTile( tile, distance ) {
   switch( tile.type ) {
@@ -388,6 +401,10 @@ function touchTile( tile, distance ) {
     case "platform":
       // these types are ignored completely
     break;
+    case "key":
+        console.log("Touch key!");
+        pickUpKey( tile );
+        break;
     case "sign": 
     console.warn("INFO");
 //      console.log(distance);
@@ -878,7 +895,7 @@ const TileTypes = {
          effect: "exit",
         image: "signExit"},
   "k": { name: "key",
-        type: "empty",
+        type: "key",
        image: "keyBlue"},
   "l": { name: "lock",
         type: "empty",
@@ -893,7 +910,7 @@ const platforms =["                   !         ! ",
                   "         !  XOXOXM     M       ",
                   "                       M      k",
                   "  /GG\\            VV   M    RRR",
-                  " /####\\  =             M    l x",
+                  "   k##\\l =             M    l x", // TODO: Reset key and lock
                   "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"
 ];
 
