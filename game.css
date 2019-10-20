@@ -266,10 +266,22 @@ body {
 }
 
 .slide .mainimage {
-
   width: 80%;
   align-self: center;
 }
+
+
+.slide .twoimages {
+  display: flex;
+  flex-direction: row;
+}
+
+.slide .twoimages img {
+  width: 100%;
+  max-width: 33vw; 
+}
+
+
 
 .slide .mainimage img {
   width: 100%;

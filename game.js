@@ -905,5 +905,10 @@ const signs = [
 const boxes = [
   { "x": 9, "y": 5, "slide": "slide-1", activated: false },
   { "x": 13, "y": 5, "slide": "slide-2", activated: false },
-  { "x": 15, "y": 5, "slide": "slide-3", activated: false }
+  { "x": 15, "y": 5, "slide": "slide-3", activated: false },
+  { "x": 14, "y": 2, "slide": "slide-4", activated: false },
+  { "x": 19, "y": 0, "slide": "slide-5", activated: false },
+  { "x": 29, "y": 0, "slide": "slide-6", activated: false },
+  { "x": 29, "y": 3, "slide": "slide-7", activated: false }
+  
 ]
