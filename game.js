@@ -364,8 +364,10 @@ function jumpIntoBox( box ) {
     replaceTileWithEmpty( box );
   }
 
-  // modify background image on box to be active
-  box.element.style.backgroundImage = `url('Tiles/${box.imageActive}.png')`;
+  // modify background image on box to be active - if there is an image for that
+  if( box.imageActive ) {
+    box.element.style.backgroundImage = `url('Tiles/${box.imageActive}.png')`;
+  }
 }
 
 function replaceTileWithEmpty( tile ) {
@@ -390,6 +392,32 @@ function replaceTileWithEmpty( tile ) {
 }
 
 function pickUpKey( key ) {
+  // mark as active
+  if( !key.activated ) {
+    key.activated = true;
+
+    console.log("picked up key");
+    
+    // calculate distance to move
+    const rect = key.element.getBoundingClientRect();
+    const distX = HTML.screen.offsetWidth - 88 - rect.x;
+    const distY = -22 - rect.y;
+
+    key.element.style.setProperty("--dist-x", distX+"px");
+    key.element.style.setProperty("--dist-y", distY+"px");
+
+    key.element.classList.add("move-to-hud");
+
+    key.element.addEventListener("animationend", gotKey );
+    function gotKey() {
+      replaceTileWithEmpty( key );
+      player.hasKey = true; // TODO: Handle different colors of keys
+
+      // mark key in hud
+      document.querySelector("#hud #key1").src = "hud/keyBlue.png";
+    }
+
+  }
 
 }
 
@@ -399,11 +427,11 @@ function touchTile( tile, distance ) {
     case "empty":
     case "background":
     case "platform":
+    case "filler":
       // these types are ignored completely
     break;
     case "key":
-        console.log("Touch key!");
-        pickUpKey( tile );
+         pickUpKey( tile );
         break;
     case "sign": 
     console.warn("INFO");
@@ -422,7 +450,6 @@ function touchTile( tile, distance ) {
 
     }
     default: 
-    
       console.log("touch " + tile.type);
 //      console.log(tile);
 //      console.log(distance);
@@ -444,6 +471,12 @@ function canMoveToTile( object, tile, x, y ) {
         if( object.y-object.regY+object.hitY > (tile.y+1)*TILESIZE ) {
           canMove = true;
         }
+      }
+      break;
+    case "lock":
+      // if we have a key, we can move - otherwise, no
+      if( player.hasKey ) { // TODO: Handle different colors of keys
+        canMove = true;
       }
       break;
     case "sign":
@@ -898,19 +931,19 @@ const TileTypes = {
         type: "key",
        image: "keyBlue"},
   "l": { name: "lock",
-        type: "empty",
+        type: "lock",
         image: "lock_blue"}
 }
 
 const platforms =["                   !         ! ",
                   "                      MMM      ",
                   "              !        M       ",
-                  "                  XXX  M    XOX",
+                  "                  XXM  M    XOX",
                   "                       M       ",
                   "         !  XOXOXM     M       ",
                   "                       M      k",
                   "  /GG\\            VV   M    RRR",
-                  "   k##\\l =             M    l x", // TODO: Reset key and lock
+                  " /####\\  =             M    l x", // TODO: Reset key and lock
                   "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"
 ];
 

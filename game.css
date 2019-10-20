@@ -427,3 +427,40 @@ body {
     background-position: -300% -200%;
   }
 }
+
+/* HUD */
+#hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 3vh;
+  
+  display: flex;
+  justify-content: space-between;
+}
+
+#hud>div {
+  outline: 1px solid black;
+}
+
+#hud .keys img {
+  height: 100%;
+
+}
+
+
+/* items */
+.move-to-hud {
+  animation: movetohud .5s ease-in 1;
+
+}
+
+@keyframes movetohud {
+   from {
+     transform: translate(0,0) scale(1) rotate(0deg) ;
+   }
+   to {
+     transform: translate(var(--dist-x), var(--dist-y)) scale(.8)  rotate(-45deg);
+   }
+}
