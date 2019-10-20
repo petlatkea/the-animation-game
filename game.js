@@ -41,9 +41,9 @@ function calculateSizes() {
 
   // TODO: These custom calculations for the hitbox, should really be configurable somehow ...
   player.hitX = player.width/8*1.8;
-  player.hitY = player.height/8*1.3;
+  player.hitY = player.height/8*1.5;
   player.hitW = player.width/8*4;
-  player.hitH = player.height/8 * 5.5;
+  player.hitH = player.height/8 * 5.3;
 
 }
 
@@ -249,8 +249,6 @@ function showSign( sign ) {
   if( !sign.sign.active ) {
     sign.sign.active = true;
 
-// TEMPORARYLY DISABLED
-/*
     // set display values
     document.querySelector("#sign h1").innerHTML = sign.sign.heading;
     document.querySelector("#sign p").innerHTML = sign.sign.text;
@@ -268,9 +266,15 @@ function showSign( sign ) {
       document.querySelector("#sign").classList.remove("show");
       document.querySelector("#sign").classList.add("hide");
 
+      document.querySelector("#sign").addEventListener("animationend", hideSign);
+
+      function hideSign() {
+        document.querySelector("#sign").classList.add("hidden");
+        document.querySelector("#sign").classList.remove("hide");
+      }
       // TODO: Make signs work again
     }
-*/
+
 
   }
 }
@@ -330,18 +334,18 @@ function jumpIntoBox( box ) {
   }
 
   // modify background image on box
+  // TODO: This is supposed to be different
   box.element.style.backgroundImage = `url('Tiles/${box.name}.png')`;
 }
 
 function touchTile( tile, distance ) {
   switch( tile.type ) {
     case "empty":
-    case "slope":
-    case "filler":
+    case "background":
     case "platform":
       // these types are ignored completely
     break;
-    case "info": 
+    case "sign": 
     console.warn("INFO");
 //      console.log(distance);
       if( distance < TILESIZE/4 ) {
@@ -369,32 +373,24 @@ function touchTile( tile, distance ) {
 function canMoveToTile( object, tile, x, y ) {
   let canMove = false;
 
-  switch( tile.block ) {
+  switch( tile.type ) {
     case "platform":
-      if( tile.type === "box"  ) {
-        // are we moving from below? - jumping?
-        if( player.jumping && player.y > tile.y*TILESIZE ) {
-          console.log("jumping into");
-          if( object.y-object.regY+object.hitY > (tile.y+1)*TILESIZE ) {
-            canMove = true;
-          }
-        }
-      //     // only accept a few pixels
-      //     console.log(`ønsket y: ${y} - har ${tile.y*TILESIZE} - forskel = ${y-tile.y*TILESIZE}`);
-      //     console.warn("JUMP INTO!");
-      //     if( y-tile.y*TILESIZE > TILESIZE/2 ) {
-      //       canMove = true;
-      //     }
-      //   } else {
-      //     console.log("trying?")
-      //   }
-      } 
-
+      canMove = false;      
       break;
+    case "box":
+      // are we moving from below? - jumping?
+      if( player.jumping && player.y > tile.y*TILESIZE ) {
+        console.log("jumping into");
+        if( object.y-object.regY+object.hitY > (tile.y+1)*TILESIZE ) {
+          canMove = true;
+        }
+      }
+      break;
+    case "sign":
     case "empty":
     case "background":
     default:
-        canMove = true;
+      canMove = true;
 
   }
 
@@ -704,15 +700,33 @@ function buildLevel() {
         }
       }
 
-       // find image
-       let image = tile.image;
+      // find image
+      let image = tile.image;
 
+      // check for Left, Mid or Right
+      if( tile.imageStyle === "lmr" ) {
+        let modifier = "";
 
-      // TODO: More left and right with platforms
-      if ( tile.type === "platform" && !(image.endsWith("Right") || image.endsWith("Left")) ) {
-          image += "Mid";
+        // if this isn't the first or last, and it is alone, use no modifier
+        if( 0 < x && x < line.length-1 && prev !== code && next !== code ) {
+          modifier = "";
+        } else 
+        // if this isn't the very first, but there is something else before, use left
+        if( 0 < x && prev !== code ) {
+          modifier = "Left";
+        } else
+        // if this isn't the very last, and there is something else after, use right
+        if( x < line.length-1 && next !== code ) {
+          modifier = "Right";
+        } else
+        // if none of the above, it must be in between others like it
+        {
+          modifier = "Mid";
+        }
+
+        // Modify the image accordingly
+        image += modifier;
       }
-
 
       element.style.backgroundImage = `url('Tiles/${image}.png')`;
       element.classList.add(tile.name);
@@ -720,41 +734,10 @@ function buildLevel() {
 
       last = code;
       
-      /*
-        // space - unless something else required by last
-        if( last ) {
-          switch( last ) {
-            case "/": tile.src = "Tiles/grassHillLeft2.png";
-                      tile.alt = "grass";
-                      last = "#";
-                      break;
-            case "#": if( next === "\\" ) {
-                        tile.src = "Tiles/grassHillRight2.png";
-                        tile.alt = "grass";
-                        last = "#";  
-                      } else {
-                        tile.src = "Tiles/grassCenter.png";
-                        tile.alt = "grass";
-                        last = "#";
-                      }
-                      break;
-          }
-        } else {
-          tile.src = "Tiles/space.png";
-          tile.alt = " ";
-
-          last = code;
-        }
-*/
-
-
-      
 
       tile.element = element;
       tiles[y][x] = tile;
       HTML.platforms.append(element);
-
-      
     }
   }
   
@@ -778,62 +761,100 @@ function buildLevel() {
   })
 
 }
+/*
+  Types of tiles:
+    empty       - nothing
+    background  - something that shows up, but the player can't step on
+    platform    - something the player can't walk through, but can't jump on
+    box         - something the player can't walk through, but can jump up into (otherwise like a platform)
+    sign        - like a background, but can be interacted with (made active)
+
+  Effect:       - what will happen when the user activates this box or sign
+                - none: default
+                - info: show Information (for signs)
+                - slide: show slide (for boxes)
+                - unbreakable: can't be removed (for boxes)
+                - slope: this is a sloping platform (for platforms)
+
+  Material:     - the material this is composed of (for sounds, and comparison)
+
+  Image:        - the default image to show for this tile
+  image-active  - the image to switch to when active, like signs and boxes
+  image-style   - normal: just a plain image
+                - lmr: Left, Mid, Right added to the basic image if needed
+
+
+*/
 
 const TileTypes = {
   " ": { type: "empty",
-         block: "empty",
          image: "space"},
   "#": { type: "filler"},
   "G": { name: "grass",
-         block: "background",
-         type: "platform",
-         image: "grass"},
-  "/": { name: "grassHill",
-         block: "background",
-         type: "slope",
-         direction: "up",
+         material: "grass",
+         type: "background",
+         image: "grassMid" // TODO: This is a hack - should be lmr, but theres a problem with slopes!
+         },
+  "/": { name: "grassHill", // TODO: In future, slopes should be matching material automatically!
+         type: "background",
          image: "grassHillLeft"},
   "\\": { name: "grassHill",
-         block: "background",
-         type: "slope",
-         direction: "down",
+         type: "background",
          image: "grassHillRight"},
   "X": { name: "boxAlt",
-         block: "platform",
          type: "box",
          image: "boxAlt"},
   "O": { name: "boxCoin",
          type: "box",
-         block: "platform",
-         image: "boxCoin_disabled"},
+         effect: "slide",
+         image: "boxCoin_disabled",
+         imageActive: "boxCoin"},
   "!": { name: "boxItem",
-         block: "platform",
          type: "box",
-         image: "boxItem_disabled"},
+         effect: "slide",
+         image: "boxItem_disabled",
+         imageActive: "boxItem"},
   "=": { name: "sign",
-         block: "background",
-         type: "info",
+         type: "sign",
+         effect: "info",
          image: "sign"},
-  "S": { name: "sand",
-         block: "platform",
-         image: "sand"},
+  "V": { name: "beam",
+         type: "platform",
+         image: "beam"},
   "R": { name: "rock",
          type: "platform",
-         block: "platform",
-         image: "castle"}
+         image: "castle",
+         imageStyle: "lmr"
+        },
+  "M": { name: "metal",
+         type: "platform",
+         image: "metal",
+         imageStyle: "lmr"},
+  "x": { name: "exit",
+         type: "sign",
+         effect: "exit",
+        image: "signExit"},
+  "k": { name: "key",
+        type: "empty",
+       image: "keyBlue"},
+  "l": { name: "lock",
+        type: "empty",
+        image: "lock_blue"}
 }
 
-const platforms =["                           ",
-                  "                           ",
-                  "              !            ",
-                  "                           ",
-                  "                           ",
-                  "         !  XOXOX          ",
-                  "                           ",
-                  "  /GG\\                     ",
-                  " /####\\  =       RRR       ",
-                  "RRRRRRRRRRRRRRRRRRRRRRRRRRR"
+const platforms =["                   !         ! ",
+                  "                      MMM      ",
+                  "              !        M       ",
+                  "                  XXX  M    XOX",
+                  "                       M       ",
+                  "         !  XOXOXM     M       ",
+                  "                       M      k",
+                  "  /GG\\            VV   M    RRR",
+                  " /####\\  =             M    l x",
+                  "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"
 ];
+
+
 
 const signs = [
   { "x": 9, "y": 8, "short": "Jump", "heading": "Did you know that", "text": "You can press 'space' to jump.<br>Use it to jump onto platforms, and into boxes.", "active": false }
