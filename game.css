@@ -293,7 +293,7 @@ body {
 #player {
   /* outline: 2px solid red; */
   position: absolute;
-  top: 0;
+  top: -15vh;
   left: 0;
   width: 15vh;
   height: 15vh;
@@ -438,15 +438,23 @@ body {
   
   display: flex;
   justify-content: space-between;
+
+  font-family: 'Gochi Hand', cursive;
 }
 
 #hud>div {
-  outline: 1px solid black;
+  
 }
 
 #hud .keys img {
   height: 100%;
 
+}
+
+#hud .level {
+  font-size: 4vh;
+  color: rgb(187, 187, 212);
+  text-shadow: 1px 1px 1px rgb(135, 135, 255);
 }
 
 
@@ -464,3 +472,58 @@ body {
      transform: translate(var(--dist-x), var(--dist-y)) scale(.8)  rotate(-45deg);
    }
 }
+
+
+/* GAME INFO */
+#gameinfo {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+#gameinfo #levelready {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 300%;
+  background-color: white;
+  border-radius: 5vh;
+  padding: 0vh 5vh;
+  box-shadow: 1vh 1vh 4vh #666;
+}
+
+#gameinfo #levelcomplete {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 200%;
+  background-color: white;
+  border-radius: 5vh;
+  padding: 0vh 5vh;
+  box-shadow: 1vh 1vh 4vh #666;
+}
+
+#gameinfo #gameover {
+  font-family: 'Ribeye Marrow', cursive;
+  font-size: 600%;
+  background-color: black;
+  color: rgb(255, 196, 0);
+  text-shadow: 0 0 8vh rgb(153, 153, 0);
+  border-radius: 5vh;
+  padding: 0vh 10vh;
+  box-shadow: 1vh 1vh 4vh #666;
+}
+
+#platforms {
+  transition: filter 1s;
+}
+
+.blur {
+  filter: blur(4px);
+}
+
+

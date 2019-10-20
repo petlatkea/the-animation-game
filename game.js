@@ -7,6 +7,7 @@ const HTML = {};
 const gravity = .3;
 let TILESIZE = 1;
 
+let level = -1;
 
 function start() {
   console.log("start");
@@ -14,22 +15,24 @@ function start() {
   // easy selectors
   getSelectors();
 
-  // build level
-  buildLevel();
+  level = -1;
+  nextLevel();
 
+  // build level
+//  buildLevel();
 
   // calculate sizes
-  calculateSizes();
+//  calculateSizes();
 
    // register keyboard
-   document.addEventListener("keydown", key);
-   document.addEventListener("keyup", key);
+  document.addEventListener("keydown", key);
+  document.addEventListener("keyup", key);
 
   // start animation loop
   requestAnimationFrame( animationLoop );
   // drop player
-  resetPlayer();
-  dropPlayer();
+//  resetPlayer();
+//  dropPlayer();
 }
 
 function calculateSizes() {
@@ -50,18 +53,19 @@ function calculateSizes() {
 function animationLoop() {
   requestAnimationFrame( animationLoop );
 
-  movePlayer();
+  if( player.active ) {
 
-  handlePlayerCollisions();
+    movePlayer();
 
-  animatePlayer();
+    handlePlayerCollisions();
+  
+    animatePlayer();
 
-  // TODO: handle camera
-  moveCamera();
-
-  drawPlayer();
-
-
+    // TODO: handle camera
+    moveCamera();
+  
+    drawPlayer();
+  }
 }
 
 const player = {
@@ -442,13 +446,18 @@ function touchTile( tile, distance ) {
         }
       }
       break;
-    case "box": {
+    case "box": 
       jumpIntoBox( tile );
       console.warn("BOX");
       player.jumping = false;
       player.y+= 10; // TODO: This number seems random ... check what it actually should be
+      break;
+    case "exit":
+      if( distance < TILESIZE/4 ) {
+        levelComplete();
+      }
+      break;
 
-    }
     default: 
       console.log("touch " + tile.type);
 //      console.log(tile);
@@ -558,6 +567,9 @@ function animatePlayer() {
 
 
 function movePlayer() {
+  if( player.active ) {
+
+  
   if( keys.space && player.jumping == false && !canMove(player,0,1) ) {
     player.speedY = -player.jumpPower;
     player.jumping = true;
@@ -595,7 +607,7 @@ function movePlayer() {
     };
     // and then don't move any more
     player.speedX = 0;
-}
+  }
 
   player.speedY += gravity;
       
@@ -611,11 +623,11 @@ function movePlayer() {
       player.speedY = 0;
       player.jumping = false;
   }  
-
+  
   // finish with actually moving
   player.x += player.speedX;
   player.y += player.speedY;
-
+  }
 }
 
 function drawPlayer() {
@@ -641,6 +653,7 @@ function resetPlayer() {
   HTML.player.className = "";
   player.x = TILESIZE;
   player.y = 0;
+  player.active = true;
 }
 
 function dropPlayer() {
@@ -689,25 +702,11 @@ const camera = {
 }
 
 function moveCamera() {
-  // const xoffset = player.x-stage.regX;
-  // const yoffset = player.y-stage.regY;
-
-  // const xmargin = 192;
-  // const ymargin = 192;
-
-  // const c_height = stage.canvas.height;
-  // const s_height = stage.getBounds().height;
-
-  // const c_width = stage.canvas.width;
-  // const s_width = stage.getBounds().width;
-
   const totalWidth = HTML.screen.scrollWidth;
   const totalHeight = HTML.screen.scrollHeight;
 
   const visibleWidth = HTML.screen.offsetWidth;
   const visibleHeight = HTML.screen.offsetHeight;
-
-
 
   // move the camera, so the player is in center of the view
   let desiredX = player.x - visibleWidth/2;
@@ -738,22 +737,126 @@ function moveCamera() {
 
   // scroll to
   HTML.screen.scrollTo(camera.x, camera.y);
-//  stage.regX = camera.x;
-//  stage.regY = camera.y;
 }
 
 
 let tiles = [];
 
+function levelComplete() {
+  console.log("Level Complete!");
+
+  // I think there is a problem with a requestAnimationFrame here ... Doesn't work unless I delay it a bit.
+  setTimeout( function() {
+    player.active = false;
+    player.sprite = "idle";
+  }, 16);
+
+  // show level complete message
+  document.querySelector("#levelcomplete").classList.remove("hidden");
+  document.querySelector("#levelcomplete").classList.add("lightSpeedIn");
+
+  // wait for space ...
+  keys.addListener("Space", pressedSpace);
+
+  function pressedSpace() {
+    keys.removeListener("Space", pressedSpace);
+    console.log("Pressed space!");
+    document.querySelector("#levelcomplete").classList.add("lightSpeedOut");
+    document.querySelector("#levelcomplete").addEventListener("animationend", done);
+
+    // hide player
+    HTML.player.style.top = "-15vh";
+
+
+    function done() {
+      document.querySelector("#levelcomplete").removeEventListener("animationend", done);
+      document.querySelector("#levelcomplete").classList.add("hidden");
+      nextLevel();
+    }
+  }
+
+
+}
+
+function nextLevel() {
+  level++;
+  if( level < levels.length ) {
+    const data = levels[level];
+    // blur platforms
+    HTML.platforms.classList.add("blur");
+    
+    // hide player
+    player.y = 0; // does this work?
+
+    buildLevel();
+
+    console.log("show level: " + data.number);
+
+    // show level in hud
+    document.querySelector("#hud .level").textContent = "Level " + data.number;
+
+    // show level-ready message
+    document.querySelector("#levelready [data-code='level']").textContent = data.number;
+    document.querySelector("#levelready [data-code='name']").textContent = data.name;
+    
+    document.querySelector("#levelready").classList.remove("hidden");
+    document.querySelector("#levelready").classList.add("rubberBand");
+    
+    let countdown = 3;
+    document.querySelector("#levelready [data-code='count']").textContent = countdown;
+    document.querySelector("#levelready").addEventListener("animationend", showCountDown);
+
+    function showCountDown() {
+      document.querySelector("#levelready").removeEventListener("animationend", showCountDown);
+      document.querySelector("#levelready [data-code='count']").textContent = countdown;
+      countdown--;
+      if( countdown > -1 ) {
+        setTimeout( showCountDown, 600 );
+      } else {
+        console.log("NOW!")
+        // hide level-ready-message
+        document.querySelector("#levelready").classList.remove("rubberBand");
+        document.querySelector("#levelready").classList.add("fadeOutUp");
+        document.querySelector("#levelready").addEventListener("animationend", hideLevelReady);
+        calculateSizes();
+        resetPlayer();
+        dropPlayer();
+      }
+    }
+
+    function hideLevelReady() {
+      document.querySelector("#levelready").removeEventListener("animationend", hideLevelReady);
+      HTML.platforms.classList.remove("blur");
+      document.querySelector("#levelready").classList.add("hidden");
+      document.querySelector("#levelready").classList.remove("fadeOutUp");
+    }
+    
+
+
+    
+  } else {
+    // show game over
+    console.log("game over");
+    document.querySelector("#gameover").classList.remove("hidden");
+    document.querySelector("#gameover").classList.add("fadeInDown");
+
+  }
+}
+
 function buildLevel() {
+  const data = levels[level];
+
   // load string description
-  const leveldata = platforms;
+  const leveldata = data.platforms;
 
   HTML.stage.style.setProperty("--rows", leveldata.length);
   HTML.stage.style.setProperty("--cols", leveldata[0].length);
 
   // clear tiles
   tiles = [];
+
+  // clear existing platforms
+  HTML.platforms.innerHTML = "";
 
   // create a div for each character
   for( let y=0; y < leveldata.length; y++ ) {
@@ -835,7 +938,7 @@ function buildLevel() {
   }
   
   // find signs
-  signs.forEach( sign => {
+  data.signs.forEach( sign => {
     // find the tile for this sign
     const tile = tiles[sign.y][sign.x];
     tile.sign = sign;
@@ -847,7 +950,7 @@ function buildLevel() {
   })
 
   // find boxes
-  boxes.forEach( box => {
+  data.boxes.forEach( box => {
     const tile = tiles[box.y][box.x];
     tile.box = box;
     // Is that it?
@@ -924,7 +1027,7 @@ const TileTypes = {
          image: "metal",
          imageStyle: "lmr"},
   "x": { name: "exit",
-         type: "sign",
+         type: "exit" ,
          effect: "exit",
         image: "signExit"},
   "k": { name: "key",
@@ -935,30 +1038,46 @@ const TileTypes = {
         image: "lock_blue"}
 }
 
-const platforms =["                   !         ! ",
-                  "                      MMM      ",
-                  "              !        M       ",
-                  "                  XXM  M    XOX",
-                  "                       M       ",
-                  "         !  XOXOXM     M       ",
-                  "                       M      k",
-                  "  /GG\\            VV   M    RRR",
-                  " /####\\  =             M    l x", // TODO: Reset key and lock
-                  "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"
-];
-
-
-
-const signs = [
-  { "x": 9, "y": 8, "short": "Jump", "heading": "Did you know that", "text": "You can press 'space' to jump.<br>Use it to jump onto platforms, and into boxes.", "active": false }
+const levels = [
+  { number: 1,
+    name: "Idea and design",
+    platforms: ["                   !         ! ",
+                "                      MMM      ",
+                "              !        M       ",
+                "                  XXM  M    XOX",
+                "                       M       ",
+                "         !  XOXOXM     M       ",
+                "                       M      k",
+                "  /GG\\            VV   M    RRR",
+                " /####\\x =             M    l x", // TODO: Reset key and lock
+                "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"],
+    signs: [
+            { "x": 9, "y": 8, "short": "Jump", "heading": "Did you know that", "text": "You can press 'space' to jump.<br>Use it to jump onto platforms, and into boxes.", "active": false }
+          ],
+    boxes: [
+      { "x": 9, "y": 5, "slide": "slide-1", activated: false },
+      { "x": 13, "y": 5, "slide": "slide-2", activated: false },
+      { "x": 15, "y": 5, "slide": "slide-3", activated: false },
+      { "x": 14, "y": 2, "slide": "slide-4", activated: false },
+      { "x": 19, "y": 0, "slide": "slide-5", activated: false },
+      { "x": 29, "y": 0, "slide": "slide-6", activated: false },
+      { "x": 29, "y": 3, "slide": "slide-7", activated: false }
+    ]
+  },
+  { number: 2,
+    name: "Animations and scripting",
+    platforms: ["  !              ",
+                "                 ", 
+                "                 ",
+                "MM  MM           ",
+                "                 ",
+                " XOXO            ",
+                "                 ", 
+                "                 ",
+                "  M              ",
+                "MMMMMMMMMMMMMMMMM"],
+    signs: [],
+    boxes: []
+  }
 ]
-const boxes = [
-  { "x": 9, "y": 5, "slide": "slide-1", activated: false },
-  { "x": 13, "y": 5, "slide": "slide-2", activated: false },
-  { "x": 15, "y": 5, "slide": "slide-3", activated: false },
-  { "x": 14, "y": 2, "slide": "slide-4", activated: false },
-  { "x": 19, "y": 0, "slide": "slide-5", activated: false },
-  { "x": 29, "y": 0, "slide": "slide-6", activated: false },
-  { "x": 29, "y": 3, "slide": "slide-7", activated: false }
-  
-]
+

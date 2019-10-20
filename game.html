@@ -7,6 +7,7 @@
   <title>Game</title>
   <link href="https://fonts.googleapis.com/css?family=Gochi+Hand&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Montserrat:300&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Ribeye+Marrow&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="animate.css">
   <link rel="stylesheet" href="game.css">
 </head>
@@ -97,8 +98,8 @@
 
       <div id="hud">
         <div class="status">
-          <div class="score">score</div>
-          <div class="lives">lives</div>
+          <div class="score"></div>
+          <div class="lives"></div>
         </div>
         <div class="level">Level 1</div>
         <div class="items">
@@ -107,6 +108,21 @@
             <img id="key2" src="hud/keyGreen_disabled.png" alt="">
             <img id="key3" src="hud/keyRed_disabled.png" alt="">
           </div>
+        </div>
+      </div>
+
+      <div id="gameinfo">
+        <div id="levelready" class="animated rubberBand hidden">
+          <h1>Level <span data-code="level">1</span></h1>
+          <h2 data-code="name">Getting started</h2>
+          <p>ready in <span data-code="count">3</span></p>
+        </div>
+        <div id="levelcomplete" class="animated hidden">
+          <h1>Level <span data-code="number"></span> Complete</h1>
+          <h2>Press 'space' to continue to next level ...</h2>
+        </div>
+        <div id="gameover" class="animated hidden">
+          <h1>Game Over</h1>
         </div>
       </div>
     </div>
