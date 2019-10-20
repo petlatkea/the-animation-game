@@ -42,7 +42,7 @@ function calculateSizes() {
   // TODO: These custom calculations for the hitbox, should really be configurable somehow ...
   player.hitX = player.width/8*1.8;
   player.hitY = player.height/8*1.5;
-  player.hitW = player.width/8*4;
+  player.hitW = player.width/8*4.2;
   player.hitH = player.height/8 * 5.3;
 
 }
@@ -189,8 +189,10 @@ function canMove( object, offsetX, offsetY ) {
   
   for( let x=leftTile; x <= rightTile; x++ ) {
       for( let y=topTile; y <= bottomTile; y++ ) {
-        if( y < 0 || y >= tiles.length ) {
+        if( y < 0 ) {
           canMove = canMove && true;
+        } else if( x >= tiles[y].length ) {
+          canMove = false;
         } else {
 
         

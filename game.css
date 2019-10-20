@@ -15,9 +15,10 @@ body {
 #stage {
   --cols: 6;
   --rows: 2;
-  width: 100%;
+  width: calc( var(--cols) * 10vh );
   height: 100%;
   position: relative;
+  overflow: hidden;
 }
 
 #platforms {
@@ -318,7 +319,8 @@ body {
 
 #player .hitbox {
   display: none;
-  /*
+
+  
   position: absolute;
   background-color:rgba(0, 128, 0, .2);
   width: 100%;
@@ -326,7 +328,7 @@ body {
   left: 0;
   height: 100%;
   outline: 2px dashed lightgreen;
-  */
+  
 }
 
 @keyframes dust-settle {
