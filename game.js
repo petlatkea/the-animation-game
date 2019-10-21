@@ -15,7 +15,7 @@ function start() {
   // easy selectors
   getSelectors();
 
-  level = -1;
+  level = 0; // TODO: Reset til -1 når færdig.
   nextLevel();
 
   // build level
@@ -341,9 +341,17 @@ function jumpIntoBox( box ) {
     slide.classList.remove("hidden");
     slide.classList.add("bounceInDown");
 
+    // reset custom class
+    const custom = slide.querySelector(".custom");
+    if( custom ) {
+      custom.classList.remove("custom");
+      custom.offsetLeft;
+      custom.classList.add("custom");
+    }
+
     // make event
     slide.addEventListener("click", closeSlide);
-    // TODO: Also accept escapekey!
+    // Also accept escapekey!
     keys.addListener("Escape", closeSlide);
 
     function closeSlide() {
@@ -783,7 +791,8 @@ function nextLevel() {
   if( level < levels.length ) {
     const data = levels[level];
     // blur platforms
-    HTML.platforms.classList.add("blur");
+    // TEMP: when testing, don't blur
+//    HTML.platforms.classList.add("blur");
     
     // hide player
     player.y = 0; // does this work?
@@ -794,6 +803,13 @@ function nextLevel() {
 
     // show level in hud
     document.querySelector("#hud .level").textContent = "Level " + data.number;
+
+    // TEMP: Skip directly to game
+    calculateSizes();
+    resetPlayer();
+    dropPlayer();
+    return;
+
 
     // show level-ready message
     document.querySelector("#levelready [data-code='level']").textContent = data.number;
@@ -1035,7 +1051,10 @@ const TileTypes = {
        image: "keyBlue"},
   "l": { name: "lock",
         type: "lock",
-        image: "lock_blue"}
+        image: "lock_blue"},
+  "~": { name: "lava",
+         type: "platform",
+         image: "liquidLavaTop_mid"}
 }
 
 const levels = [
@@ -1066,18 +1085,25 @@ const levels = [
   },
   { number: 2,
     name: "Animations and scripting",
-    platforms: ["  !              ",
-                "                 ", 
-                "                 ",
-                "MM  MM           ",
-                "                 ",
-                " XOXO            ",
-                "                 ", 
-                "                 ",
-                "  M              ",
-                "MMMMMMMMMMMMMMMMM"],
+    platforms: ["  !                       ",
+                "              !           ", 
+                "                          ",
+                "MM  MM            k       ",
+                "          !               ",
+                " XOXO         VVV O       ",
+                "                          ", 
+                "          VVV          MMM",
+                "  M                    l x",
+                "MMMMMMM~~~~~~~~~~~M~~MMMMM"],
     signs: [],
-    boxes: []
+    boxes: [
+      { "x": 2, "y": 0, "slide": "slide-8", activated: false },
+      { "x": 2, "y": 5, "slide": "slide-9", activated: false },
+      { "x": 4, "y": 5, "slide": "slide-10", activated: false },
+      { "x": 10, "y": 4, "slide": "slide-11", activated: false },
+      { "x": 14, "y": 1, "slide": "slide-12", activated: false },
+      { "x": 18, "y": 5, "slide": "slide-13", activated: false },
+    ]
   }
 ]
 

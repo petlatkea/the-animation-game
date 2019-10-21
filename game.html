@@ -1,133 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Game</title>
-  <link href="https://fonts.googleapis.com/css?family=Gochi+Hand&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css?family=Montserrat:300&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css?family=Ribeye+Marrow&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="animate.css">
-  <link rel="stylesheet" href="game.css">
-</head>
-<body>
-  
-  <div id="screen">
-    <div id="stage">
-      <div id="background"></div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Game</title>
+    <link href="https://fonts.googleapis.com/css?family=Gochi+Hand&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:300&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Ribeye+Marrow&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="animate.css" />
+    <link rel="stylesheet" href="game.css" />
+  </head>
+  <body>
+    <div id="screen">
+      <div id="stage">
+        <div id="background"></div>
 
-      <div id="platforms"></div>
+        <div id="platforms"></div>
 
-      <div id="player" class="walking"><div class="sprite"></div><div class="effect"></div><div class="hitbox"></div></div>
-
-      <div id="foreground"></div>
-
-      <div id="info">
-        <div id="sign" class="hidden">
-          <div class="box">
-            <h1>headline</h1>
-            <p>content</p>
-            <button>close</button>
-          </div>
+        <div id="player" class="walking">
+          <div class="sprite"></div>
+          <div class="effect"></div>
+          <div class="hitbox"></div>
         </div>
-        <div id="slides">
-          <div id="slide-1" class="slide animated hidden">
-            <h1>Game Mechanics</h1>
-            
-            <div class="mainimage">
-              <img src="slides/mechanics_1_clicker.gif" alt="illustration of a simple game, where you click on good and bad things">
+
+        <div id="foreground"></div>
+
+        <div id="info">
+          <div id="sign" class="hidden">
+            <div class="box">
+              <h1>headline</h1>
+              <p>content</p>
+              <button>close</button>
             </div>
           </div>
+          <div id="slides">
+            <div id="slide-1" class="slide animated hidden">
+              <h1>Game Mechanics</h1>
 
-          <div id="slide-2" class="slide animated hidden">
-            <h1>Activity Diagrams</h1>
-            
-            <div class="mainimage">
-              <img src="slides/activitydiagram.png" alt="excerpt of an activity diagram">
-            </div>
-          </div>
-
-          <div id="slide-3" class="slide animated hidden">
-            <h1>Generating Ideas</h1>
-            
-            <div class="mainimage">
-              <img src="slides/georg.png" alt="Georg Gearløs - med ide-hatten på hovedet">
-            </div>
-          </div>
-
-          <div id="slide-4" class="slide animated hidden">
-            <h1>Drawing Sketches</h1>
-            
-            <div class="mainimage">
-              <img src="slides/sketch.png" alt="Sketches of the Meat-game">
-            </div>
-          </div>
-
-          <div id="slide-5" class="slide animated hidden">
-            <h1>Illustrator &amp; SVG</h1>
-            
-            <div class="twoimages">
-              <div class="image1">
-                <img src="slides/illustrator_logo.png" alt="Illustrator logo">
-              </div>
-              <div class="image2">
-                <img src="slides/svg_logo.png" alt="SVG logo">
+              <div class="mainimage">
+                <img src="slides/mechanics_1_clicker.gif" alt="illustration of a simple game, where you click on good and bad things" />
               </div>
             </div>
-          </div>
 
-          <div id="slide-6" class="slide animated hidden">
-            <h1>Character design</h1>
-            
-            <div class="mainimage">
-              <img src="slides/characters.png" alt="Character sketches">
+            <div id="slide-2" class="slide animated hidden">
+              <h1>Activity Diagrams</h1>
+
+              <div class="mainimage">
+                <img src="slides/activitydiagram.png" alt="excerpt of an activity diagram" />
+              </div>
+            </div>
+
+            <div id="slide-3" class="slide animated hidden">
+              <h1>Generating Ideas</h1>
+
+              <div class="mainimage">
+                <img src="slides/georg.png" alt="Georg Gearløs - med ide-hatten på hovedet" />
+              </div>
+            </div>
+
+            <div id="slide-4" class="slide animated hidden">
+              <h1>Drawing Sketches</h1>
+
+              <div class="mainimage">
+                <img src="slides/sketch.png" alt="Sketches of the Meat-game" />
+              </div>
+            </div>
+
+            <div id="slide-5" class="slide animated hidden">
+              <h1>Illustrator &amp; SVG</h1>
+
+              <div class="twoimages">
+                <div class="image1">
+                  <img src="slides/illustrator_logo.png" alt="Illustrator logo" />
+                </div>
+                <div class="image2">
+                  <img src="slides/svg_logo.png" alt="SVG logo" />
+                </div>
+              </div>
+            </div>
+
+            <div id="slide-6" class="slide animated hidden">
+              <h1>Character design</h1>
+
+              <div class="mainimage">
+                <img src="slides/characters.png" alt="Character sketches" />
+              </div>
+            </div>
+
+            <div id="slide-7" class="slide animated hidden">
+              <h1>Background design</h1>
+
+              <div class="mainimage">
+                <img src="slides/background_example.jpg" alt="Background example from Vector Slate tutorial" />
+              </div>
+            </div>
+
+            <!-- Level 2 -->
+            <div id="slide-8" class="slide animated hidden">
+              <h1>Git</h1>
+
+              <div class="mainimage">
+                <img src="slides/git_logo.png" alt="git logo" />
+              </div>
+            </div>
+
+            <div id="slide-9" class="slide animated hidden">
+              <h1>Positioning</h1>
+
+              <div class="custom garden">
+                <img class="bee" src="characters/bee.png" alt="">
+                <img class="frog" src="characters/frog.png" alt="">
+                <img class="ladybug" src="characters/ladyBug.png" alt="">
+                <img class="fish" src="characters/fishPink.png" alt="">
+              </div>
+            </div>
+
+            <div id="slide-10" class="slide animated hidden">
+              <h1>Transform &amp; animation</h1>
+
+              <div class="custom animations">
+                <div class="character transform"></div>
+                <div class="character animate"></div>
+              </div>
+            </div>
+
+            <div id="slide-11" class="slide animated hidden">
+              <h1>JavaScript</h1>
+
+              <div class="mainimage">
+                <img src="slides/js_logo.png" alt="JavaScript Logo" />
+              </div>
+            </div>
+
+            <div id="slide-12" class="slide animated hidden ">
+              <h1>Functions &amp; events</h1>
+
+              <div class="mainimage">
+                <img src="slides/functions.png" alt="Functions" />
+              </div>
+            </div>
+
+            <div id="slide-13" class="slide animated hidden">
+              <h1>Variables, counters</h1>
+
+              <div class="mainimage">
+                <img src="slides/variables.png" alt="Variables" />
+              </div>
             </div>
           </div>
+        </div>
 
-          <div id="slide-7" class="slide animated hidden">
-            <h1>Background design</h1>
-            
-            <div class="mainimage">
-              <img src="slides/background_example.jpg" alt="Background example from Vector Slate tutorial">
+        <div id="hud">
+          <div class="status">
+            <div class="score"></div>
+            <div class="lives"></div>
+          </div>
+          <div class="level">Level 1</div>
+          <div class="items">
+            <div class="keys">
+              <img id="key1" src="hud/keyBlue_disabled.png" alt="" />
+              <img id="key2" src="hud/keyGreen_disabled.png" alt="" />
+              <img id="key3" src="hud/keyRed_disabled.png" alt="" />
             </div>
           </div>
-
         </div>
-      </div>
 
-      <div id="hud">
-        <div class="status">
-          <div class="score"></div>
-          <div class="lives"></div>
-        </div>
-        <div class="level">Level 1</div>
-        <div class="items">
-          <div class="keys">
-            <img id="key1" src="hud/keyBlue_disabled.png" alt="">
-            <img id="key2" src="hud/keyGreen_disabled.png" alt="">
-            <img id="key3" src="hud/keyRed_disabled.png" alt="">
+        <div id="gameinfo">
+          <div id="levelready" class="animated rubberBand hidden">
+            <h1>Level <span data-code="level">1</span></h1>
+            <h2 data-code="name">Getting started</h2>
+            <p>ready in <span data-code="count">3</span></p>
           </div>
-        </div>
-      </div>
-
-      <div id="gameinfo">
-        <div id="levelready" class="animated rubberBand hidden">
-          <h1>Level <span data-code="level">1</span></h1>
-          <h2 data-code="name">Getting started</h2>
-          <p>ready in <span data-code="count">3</span></p>
-        </div>
-        <div id="levelcomplete" class="animated hidden">
-          <h1>Level <span data-code="number"></span> Complete</h1>
-          <h2>Press 'space' to continue to next level ...</h2>
-        </div>
-        <div id="gameover" class="animated hidden">
-          <h1>Game Over</h1>
+          <div id="levelcomplete" class="animated hidden">
+            <h1>Level <span data-code="number"></span> Complete</h1>
+            <h2>Press 'space' to continue to next level ...</h2>
+          </div>
+          <div id="gameover" class="animated hidden">
+            <h1>Game Over</h1>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <script src="game.js"></script>
-</body>
+    <script src="game.js"></script>
+  </body>
 </html>
