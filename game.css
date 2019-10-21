@@ -16,7 +16,7 @@ body {
   --cols: 6;
   --rows: 2;
   width: calc( var(--cols) * 10vh );
-  height: 100%;
+  min-height: 100%;
   position: relative;
   overflow: hidden;
 }

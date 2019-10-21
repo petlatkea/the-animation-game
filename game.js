@@ -15,7 +15,7 @@ function start() {
   // easy selectors
   getSelectors();
 
-  level = 0; // TODO: Reset til -1 når færdig.
+  level = 1; // TODO: Reset til -1 når færdig.
   nextLevel();
 
   // build level
@@ -461,7 +461,7 @@ function touchTile( tile, distance ) {
       player.y+= 10; // TODO: This number seems random ... check what it actually should be
       break;
     case "exit":
-      if( distance < TILESIZE/4 ) {
+      if( distance < TILESIZE/3 ) {
         levelComplete();
       }
       break;
@@ -919,6 +919,10 @@ function buildLevel() {
       if( tile.imageStyle === "lmr" ) {
         let modifier = "";
 
+        // if this is below another of same type, make it center
+        if( y> 0 && leveldata[y-1][x] === code ) {
+          modifier = "Center";
+        } else
         // if this isn't the first or last, and it is alone, use no modifier
         if( 0 < x && x < line.length-1 && prev !== code && next !== code ) {
           modifier = "";
@@ -943,6 +947,9 @@ function buildLevel() {
       element.style.backgroundImage = `url('Tiles/${image}.png')`;
       element.classList.add(tile.name);
       element.classList.add(tile.type);
+
+      element.dataset.gridX = x;
+      element.dataset.gridY = y;
 
       last = code;
       
@@ -1042,6 +1049,14 @@ const TileTypes = {
          type: "platform",
          image: "metal",
          imageStyle: "lmr"},
+  "S": { name: "sand",
+        type: "platform",
+        image: "sand",
+        imageStyle: "lmr"},
+  "D": { name: "dirt",
+        type: "platform",
+        image: "dirt",
+        imageStyle: "lmr"},
   "x": { name: "exit",
          type: "exit" ,
          effect: "exit",
@@ -1053,8 +1068,12 @@ const TileTypes = {
         type: "lock",
         image: "lock_blue"},
   "~": { name: "lava",
+         type: "platform", // Hack, should be liquid - and dangerous!
+         image: "liquidLavaTop_mid"},
+  "w": { name: "water",
          type: "platform",
-         image: "liquidLavaTop_mid"}
+         image: "liquidWaterTop_mid"}
+  
 }
 
 const levels = [
@@ -1103,6 +1122,30 @@ const levels = [
       { "x": 10, "y": 4, "slide": "slide-11", activated: false },
       { "x": 14, "y": 1, "slide": "slide-12", activated: false },
       { "x": 18, "y": 5, "slide": "slide-13", activated: false },
+    ]
+  },
+  { number: 3,
+    name: "Sequences and errors",
+    platforms: ["     Dx l               !  ",
+                "     DDDDD        DDD      ",
+                "DDD  D      DDDD          k",
+                "     D                 DDDD",
+                "     D             MM      ",
+                "O DDDD              !   X D",
+                "     D               XXX   ",
+                "     D        !            ",
+                "DDD  D            DDDD   D ",
+                "     D                     ",
+                "     D       DD            ",
+                "  DDDDDDD                  ",
+                "                           ",
+                "DDDDDDDDDDwwwwwwDDDDwwwwwwD"],
+    signs: [],
+    boxes: [
+      { "x": 0, "y": 5, "slide": "slide-14", activated: false },
+      { "x": 14, "y": 7, "slide": "slide-15", activated: false },
+      { "x": 20, "y": 5, "slide": "slide-16", activated: false },
+      { "x": 24, "y": 0, "slide": "slide-17", activated: false },
     ]
   }
 ]
