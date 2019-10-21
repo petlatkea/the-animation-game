@@ -15,7 +15,7 @@ function start() {
   // easy selectors
   getSelectors();
 
-  level = 1; // TODO: Reset til -1 når færdig.
+  level = 2; // TODO: Reset til -1 når færdig.
   nextLevel();
 
   // build level
@@ -1087,7 +1087,7 @@ const levels = [
                 "         !  XOXOXM     M       ",
                 "                       M      k",
                 "  /GG\\            VV   M    RRR",
-                " /####\\x =             M    l x", // TODO: Reset key and lock
+                " /####\\  =             M    l x", // TODO: Reset key and lock
                 "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"],
     signs: [
             { "x": 9, "y": 8, "short": "Jump", "heading": "Did you know that", "text": "You can press 'space' to jump.<br>Use it to jump onto platforms, and into boxes.", "active": false }
@@ -1147,6 +1147,27 @@ const levels = [
       { "x": 20, "y": 5, "slide": "slide-16", activated: false },
       { "x": 24, "y": 0, "slide": "slide-17", activated: false },
     ]
+  },
+  { number: 4,
+    name: "The Final Level",
+    platforms: ["                                              !",
+                "                                               ",
+                "                                               ",
+                "                                       X     XX" , 
+                "             !                        XX       ",
+                "   X  X                              XXX       ",
+                "  XX  XX            XXOX            XXXX       ",
+                " XXX  XXX   MMM               MMM  XXXXX       ",
+                "XXXX  XXXX   M                 M  XXXXXX      x",
+                "SSSSwwSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS"],
+    signs: [],
+    boxes: [
+      { "x": 13, "y": 4, "slide": "slide-18", activated: false },
+      { "x": 22, "y": 6, "slide": "slide-19", activated: false },
+      { "x": 46, "y": 0, "slide": "slide-20", activated: false },
+    ]
+
+
   }
 ]
 
