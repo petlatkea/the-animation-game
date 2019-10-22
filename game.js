@@ -15,14 +15,8 @@ function start() {
   // easy selectors
   getSelectors();
 
-  level = 2; // TODO: Reset til -1 når færdig.
+  level = -1; // TODO: Reset til -1 når færdig.
   nextLevel();
-
-  // build level
-//  buildLevel();
-
-  // calculate sizes
-//  calculateSizes();
 
    // register keyboard
   document.addEventListener("keydown", key);
@@ -30,9 +24,6 @@ function start() {
 
   // start animation loop
   requestAnimationFrame( animationLoop );
-  // drop player
-//  resetPlayer();
-//  dropPlayer();
 }
 
 function calculateSizes() {
@@ -83,7 +74,7 @@ const player = {
   speedY:  0,
   direction:  1,
   walkSpeed:  8, // used to be 3
-  jumpPower:  12,
+  jumpPower:  14,
   alive:  true,
   hasKey:  false,
   
@@ -662,6 +653,9 @@ function resetPlayer() {
   player.x = TILESIZE;
   player.y = 0;
   player.active = true;
+  player.hasKey = false;
+  // remove key from hud'
+  document.querySelector("#hud #key1").src = "hud/keyBlue_disabled.png";
 }
 
 function dropPlayer() {
@@ -750,49 +744,74 @@ function moveCamera() {
 
 let tiles = [];
 
+let levelCompleteActive = false;
+
 function levelComplete() {
-  console.log("Level Complete!");
-
-  // I think there is a problem with a requestAnimationFrame here ... Doesn't work unless I delay it a bit.
-  setTimeout( function() {
-    player.active = false;
-    player.sprite = "idle";
-  }, 16);
-
-  // show level complete message
-  document.querySelector("#levelcomplete").classList.remove("hidden");
-  document.querySelector("#levelcomplete").classList.add("lightSpeedIn");
-
-  // wait for space ...
-  keys.addListener("Space", pressedSpace);
-
-  function pressedSpace() {
-    keys.removeListener("Space", pressedSpace);
-    console.log("Pressed space!");
-    document.querySelector("#levelcomplete").classList.add("lightSpeedOut");
-    document.querySelector("#levelcomplete").addEventListener("animationend", done);
-
-    // hide player
-    HTML.player.style.top = "-15vh";
+  if( !levelCompleteActive ) {
+    levelCompleteActive = true;
+  
+    console.log("Level Complete!");
 
 
-    function done() {
-      document.querySelector("#levelcomplete").removeEventListener("animationend", done);
-      document.querySelector("#levelcomplete").classList.add("hidden");
-      nextLevel();
+
+    // I think there is a problem with a requestAnimationFrame here ... Doesn't work unless I delay it a bit.
+    setTimeout( function() {
+      player.active = false;
+      player.sprite = "idle";
+    }, 16);
+
+    // go directly to game over if no more levels
+    if( level === levels.length-1 ) {
+      gameOver();
+    } else {
+
+      
+      // show level complete message
+      document.querySelector("#levelcomplete").classList.remove("hidden");
+      document.querySelector("#levelcomplete").classList.add("lightSpeedIn");
+      
+      // wait for space ...
+      keys.addListener("Space", pressedSpace);
+      
+      function pressedSpace() {
+        keys.removeListener("Space", pressedSpace);
+        console.log("Pressed space!");
+        document.querySelector("#levelcomplete").classList.remove("lightSpeedIn");
+        document.querySelector("#levelcomplete").classList.add("lightSpeedOut");
+        document.querySelector("#levelcomplete").addEventListener("animationend", done);
+        
+        // hide player
+        HTML.player.style.top = "-15vh";
+        
+        
+        function done() {
+          console.log("done!");
+          document.querySelector("#levelcomplete").removeEventListener("animationend", done);
+          document.querySelector("#levelcomplete").classList.remove("lightSpeedOut");
+          document.querySelector("#levelcomplete").classList.add("hidden");
+          levelCompleteActive = false;
+          nextLevel();
+        }
+      }
     }
   }
+}
 
-
+function gameOver() {
+  // show game over
+  console.log("game over");
+  document.querySelector("#gameover").classList.remove("hidden");
+  document.querySelector("#gameover").classList.add("fadeInDown");
 }
 
 function nextLevel() {
   level++;
+  console.log("Show level "+level);
   if( level < levels.length ) {
     const data = levels[level];
     // blur platforms
     // TEMP: when testing, don't blur
-//    HTML.platforms.classList.add("blur");
+    HTML.platforms.classList.add("blur");
     
     // hide player
     player.y = 0; // does this work?
@@ -805,11 +824,11 @@ function nextLevel() {
     document.querySelector("#hud .level").textContent = "Level " + data.number;
 
     // TEMP: Skip directly to game
-    calculateSizes();
+/*    calculateSizes();
     resetPlayer();
     dropPlayer();
     return;
-
+*/
 
     // show level-ready message
     document.querySelector("#levelready [data-code='level']").textContent = data.number;
@@ -847,14 +866,9 @@ function nextLevel() {
       document.querySelector("#levelready").classList.remove("fadeOutUp");
     }
     
-
-
-    
   } else {
-    // show game over
-    console.log("game over");
-    document.querySelector("#gameover").classList.remove("hidden");
-    document.querySelector("#gameover").classList.add("fadeInDown");
+    gameOver();
+    
 
   }
 }
@@ -1166,8 +1180,27 @@ const levels = [
       { "x": 22, "y": 6, "slide": "slide-19", activated: false },
       { "x": 46, "y": 0, "slide": "slide-20", activated: false },
     ]
-
-
+  },
+  {
+    number: 5,
+    name: "Bonus - The Group Project",
+    platforms: ["            M    !                   !  " ,
+                "                                      k ",
+                "RR                                      ",
+                "               MMM       DDDD      SSS  ", 
+                "      XXX                Dx l           ",
+                "  R         MMM         DDDDDDDDD      S",
+                "  !           X            !            ",
+                "      RRR                            VVV",
+                "                        X               ",
+                "RRRRwwwwwwwMMMMMMM~~~~~DDDDDDD~~~~SSSSSS"],
+    signs: [],
+    boxes: [
+      { "x": 2, "y": 6, "slide": "slide-21", activated: false },
+      { "x": 17, "y": 0, "slide": "slide-22", activated: false },
+      { "x": 27, "y": 6, "slide": "slide-23", activated: false },
+      { "x": 37, "y": 0, "slide": "slide-24", activated: false },
+    ]
   }
 ]
 

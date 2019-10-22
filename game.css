@@ -230,7 +230,7 @@ body {
   position: absolute;
   right: -2vh;
   top: -2vh;
-  content: "🗙";
+  content: "✕";
   font-family: Arial;
   font-size: 2.5vh;
   font-weight: bold;
@@ -321,6 +321,38 @@ body {
   transform: translate(17vw,26vw);
 }
 
+/* group */
+.custom.group {
+  height: 30vw;
+  position: relative;  
+  transform: translateX(-4vh);
+}
+.custom.group .character {
+  transform: scale(2);
+}
+
+.custom.group .blue {
+  top: 2vw;
+  filter: hue-rotate(150deg);
+}
+.custom.group .green {
+  top: 20vw;
+  filter: hue-rotate(45deg);
+}
+
+.custom.group .red {
+  top: 2vw;
+  left: 25vw;
+  filter: hue-rotate(310deg);
+}
+
+.custom.group .yellow {
+  top: 20vw;
+  left: 25vw;
+}
+
+
+
 /* animations */
 
 .custom.animations {
@@ -330,7 +362,7 @@ body {
   overflow: hidden;
 }
 
-.custom.animations .character {
+.custom .character {
   position: absolute;
   top: 30%;
   left: 15%;
