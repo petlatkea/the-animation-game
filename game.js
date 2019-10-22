@@ -154,7 +154,6 @@ function key(evt) {
   } else if(evt.code=="Space") {
       keys.space = value;
   } else if(evt.code==="Escape") {
-      console.log("escape key");
       keys.escape = value;
   } else {
     // no valid key
@@ -163,7 +162,6 @@ function key(evt) {
 
   // check for key-listeners - but only on keyup!
   if(!value) {
-
     keys.listeners.forEach( listener => {
       if( listener.code === evt.code ) {
         listener.func();
@@ -171,7 +169,7 @@ function key(evt) {
     });
   }
 
-
+  // If seems like preventDefault isn't necessary with fullscreen and camera-control
   if( preventDefault ) {
 //    evt.preventDefault();
   }
@@ -383,7 +381,7 @@ function jumpIntoBox( box ) {
 
   // modify background image on box to be active - if there is an image for that
   if( box.imageActive ) {
-    box.element.style.backgroundImage = `url('Tiles/${box.imageActive}.png')`;
+    box.element.style.backgroundImage = `url('tiles/${box.imageActive}.png')`;
   }
 }
 
@@ -392,7 +390,7 @@ function replaceTileWithEmpty( tile ) {
   const empty = Object.create( TileTypes[" "] );
   const element = document.createElement("div");
   element.classList.add("tile");
-  element.style.backgroundImage = `url('Tiles/${empty.image}.png')`;
+  element.style.backgroundImage = `url('tiles/${empty.image}.png')`;
   element.classList.add(empty.name);
   element.classList.add(empty.type);
 
@@ -818,8 +816,9 @@ function gameOver() {
 }
 
 function nextLevel() {
+  console.log("Next level");
   level++;
-  console.log("Show level "+level);
+
   if( level < levels.length ) {
     const data = levels[level];
     // blur platforms
@@ -833,7 +832,7 @@ function nextLevel() {
 
     buildLevel();
 
-    console.log("show level: " + data.number);
+    console.log("Show level: " + data.number);
 
     // show level in hud
     document.querySelector("#hud .level").textContent = "Level " + data.number;
@@ -863,7 +862,6 @@ function nextLevel() {
       if( countdown > -1 ) {
         setTimeout( showCountDown, 600 );
       } else {
-        console.log("NOW!")
         // hide level-ready-message
         document.querySelector("#levelready").classList.remove("rubberBand");
         document.querySelector("#levelready").classList.add("fadeOutUp");
@@ -971,7 +969,7 @@ function buildLevel() {
         image += modifier;
       }
 
-      element.style.backgroundImage = `url('Tiles/${image}.png')`;
+      element.style.backgroundImage = `url('tiles/${image}.png')`;
       element.classList.add(tile.name);
       element.classList.add(tile.type);
 
