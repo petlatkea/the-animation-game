@@ -1,6 +1,6 @@
 "use strict";
 
-const debugging = true;
+const debugging = false;
 
 window.addEventListener("load", start);
 window.addEventListener("resize", calculateSizes);
