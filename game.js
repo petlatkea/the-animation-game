@@ -1,5 +1,7 @@
 "use strict";
 
+const debugging = false;
+
 window.addEventListener("load", start);
 window.addEventListener("resize", calculateSizes);
 
@@ -15,7 +17,7 @@ function start() {
   // easy selectors
   getSelectors();
 
-  level = -1; // TODO: Reset til -1 når færdig.
+  level = -1;
   nextLevel();
 
    // register keyboard
@@ -34,7 +36,7 @@ function calculateSizes() {
   player.regY = player.height /2;
 
   // TODO: These custom calculations for the hitbox, should really be configurable somehow ...
-  player.hitX = player.width/8*1.8;
+  player.hitX = player.width/8*1.8
   player.hitY = player.height/8*1.5;
   player.hitW = player.width/8*4.2;
   player.hitH = player.height/8 * 5.3;
@@ -52,7 +54,6 @@ function animationLoop() {
   
     animatePlayer();
 
-    // TODO: handle camera
     moveCamera();
   
     drawPlayer();
@@ -76,7 +77,7 @@ const player = {
   walkSpeed:  8, // used to be 3
   jumpPower:  14,
   alive:  true,
-  hasKey:  false,
+  keys: [],
   
   // The sprite property has a setter to avoid resetting it to the same value over and over
   set sprite( spriteName ) {
@@ -93,7 +94,20 @@ const player = {
 
   get sprite() {
     return this._sprite;
+  },
+
+  addKey( key ) {
+    // Check if key of this color already exists
+    const exists = this.keys.find( akey => akey.color === key.color );
+    if(!exists) {
+      this.keys.push( key ); 
+    }
+  },
+
+  hasKey( color ) {
+    return this.keys.find( akey => akey.color === color );
   }
+
 }
 
 const keys = {
@@ -399,12 +413,15 @@ function pickUpKey( key ) {
   if( !key.activated ) {
     key.activated = true;
 
-    console.log("picked up key");
+    console.log(`Pick up ${key.color} key.`);
     
+    // Find destination HUD-element
+    const destination = document.querySelector("#hud .keys #key"+key.color);
+    const destinationRect = destination.getBoundingClientRect();
     // calculate distance to move
-    const rect = key.element.getBoundingClientRect();
-    const distX = HTML.screen.offsetWidth - 88 - rect.x;
-    const distY = -22 - rect.y;
+    const start = key.element.getBoundingClientRect();
+    const distX = destinationRect.x - start.x;
+    const distY =  destinationRect.y - start.y;
 
     key.element.style.setProperty("--dist-x", distX+"px");
     key.element.style.setProperty("--dist-y", distY+"px");
@@ -414,14 +431,13 @@ function pickUpKey( key ) {
     key.element.addEventListener("animationend", gotKey );
     function gotKey() {
       replaceTileWithEmpty( key );
-      player.hasKey = true; // TODO: Handle different colors of keys
+      player.addKey( key );
 
       // mark key in hud
-      document.querySelector("#hud #key1").src = "hud/keyBlue.png";
+      // TODO: Make function to update HUD with player-info
+      destination.src = "hud/key"+key.color+".png";
     }
-
   }
-
 }
 
 
@@ -482,8 +498,8 @@ function canMoveToTile( object, tile, x, y ) {
       }
       break;
     case "lock":
-      // if we have a key, we can move - otherwise, no
-      if( player.hasKey ) { // TODO: Handle different colors of keys
+      // if we have a key in the correct color, we can move - otherwise, no
+      if( player.hasKey( tile.color) ) { 
         canMove = true;
       }
       break;
@@ -653,9 +669,6 @@ function resetPlayer() {
   player.x = TILESIZE;
   player.y = 0;
   player.active = true;
-  player.hasKey = false;
-  // remove key from hud'
-  document.querySelector("#hud #key1").src = "hud/keyBlue_disabled.png";
 }
 
 function dropPlayer() {
@@ -810,8 +823,10 @@ function nextLevel() {
   if( level < levels.length ) {
     const data = levels[level];
     // blur platforms
-    // TEMP: when testing, don't blur
-    HTML.platforms.classList.add("blur");
+    
+    if( !debugging ) { // DEBUG: when testing, don't blur
+      HTML.platforms.classList.add("blur");
+    }
     
     // hide player
     player.y = 0; // does this work?
@@ -823,12 +838,12 @@ function nextLevel() {
     // show level in hud
     document.querySelector("#hud .level").textContent = "Level " + data.number;
 
-    // TEMP: Skip directly to game
-/*    calculateSizes();
-    resetPlayer();
-    dropPlayer();
-    return;
-*/
+    if( debugging ) { // DEBUG: Skip directly to game
+      calculateSizes();
+      resetPlayer();
+      dropPlayer();
+      return;
+    }
 
     // show level-ready message
     document.querySelector("#levelready [data-code='level']").textContent = data.number;
@@ -868,8 +883,6 @@ function nextLevel() {
     
   } else {
     gameOver();
-    
-
   }
 }
 
@@ -1076,11 +1089,40 @@ const TileTypes = {
          effect: "exit",
         image: "signExit"},
   "k": { name: "key",
-        type: "key",
-       image: "keyBlue"},
+         type: "key",
+         color: "Blue",
+         image: "keyBlue"},
+  "K": { name: "key",
+         type: "key",
+         color: "Red",
+         image: "keyRed"},
+  "q": { name: "key",
+         type: "key",
+         color: "Green",
+         image: "keyGreen"},
+  "Q": { name: "key",
+         type: "key",
+         color: "Yellow",
+         image: "keyYellow"},
+
   "l": { name: "lock",
         type: "lock",
-        image: "lock_blue"},
+        color: "Blue",
+        image: "lockBlue"},
+  "L": { name: "lock",
+        type: "lock",
+        color: "Red",
+        image: "lockRed"},
+        "a": { name: "lock",
+        type: "lock",
+        color: "Green",
+        image: "lockGreen"},
+        "A": { name: "lock",
+        type: "lock",
+        color: "Yellow",
+        image: "lockYellow"},
+
+
   "~": { name: "lava",
          type: "platform", // Hack, should be liquid - and dangerous!
          image: "liquidLavaTop_mid"},
@@ -1097,11 +1139,11 @@ const levels = [
                 "                      MMM      ",
                 "              !        M       ",
                 "                  XXM  M    XOX",
-                "                       M       ",
-                "         !  XOXOXM     M       ",
                 "                       M      k",
+                "         !  XOXOXM     M       ",
+                "                       M       ",
                 "  /GG\\            VV   M    RRR",
-                " /####\\  =             M    l x", // TODO: Reset key and lock
+                " /####\\  =             M    l x",
                 "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"],
     signs: [
             { "x": 9, "y": 8, "short": "Jump", "heading": "Did you know that", "text": "You can press 'space' to jump.<br>Use it to jump onto platforms, and into boxes.", "active": false }
@@ -1121,12 +1163,12 @@ const levels = [
     platforms: ["  !                       ",
                 "              !           ", 
                 "                          ",
-                "MM  MM            k       ",
+                "MM  MM            K       ",
                 "          !               ",
                 " XOXO         VVV O       ",
                 "                          ", 
                 "          VVV          MMM",
-                "  M                    l x",
+                "  M                    L x",
                 "MMMMMMM~~~~~~~~~~~M~~MMMMM"],
     signs: [],
     boxes: [
@@ -1140,9 +1182,9 @@ const levels = [
   },
   { number: 3,
     name: "Sequences and errors",
-    platforms: ["     Dx l               !  ",
+    platforms: ["     Dx a               !  ",
                 "     DDDDD        DDD      ",
-                "DDD  D      DDDD          k",
+                "DDD  D      DDDD          q",
                 "     D                 DDDD",
                 "     D             MM      ",
                 "O DDDD              !   X D",
@@ -1166,13 +1208,13 @@ const levels = [
     name: "The Final Level",
     platforms: ["                                              !",
                 "                                               ",
-                "                                               ",
+                "                                              Q",
                 "                                       X     XX" , 
                 "             !                        XX       ",
                 "   X  X                              XXX       ",
                 "  XX  XX            XXOX            XXXX       ",
-                " XXX  XXX   MMM               MMM  XXXXX       ",
-                "XXXX  XXXX   M                 M  XXXXXX      x",
+                " XXX  XXX   MMM               MMM  XXXXX     XX",
+                "XXXX  XXXX   M                 M  XXXXXX     Ax",
                 "SSSSwwSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS"],
     signs: [],
     boxes: [
@@ -1184,11 +1226,11 @@ const levels = [
   {
     number: 5,
     name: "Bonus - The Group Project",
-    platforms: ["            M    !                   !  " ,
-                "                                      k ",
-                "RR                                      ",
-                "               MMM       DDDD      SSS  ", 
-                "      XXX                Dx l           ",
+    platforms: ["            M    !        D          !  " ,
+                "                          D             ",
+                "RR                        D             ",
+                "               MMM       DDDDDD    SSS  ", 
+                "      XXX                DxAaLl         ",
                 "  R         MMM         DDDDDDDDD      S",
                 "  !           X            !            ",
                 "      RRR                            VVV",
