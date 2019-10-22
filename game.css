@@ -29,8 +29,7 @@ body {
 
 #platforms div {position: relative;}
 
-#platforms .tile {
-  
+.tile {  
   background-size: cover;
 }
 
@@ -47,6 +46,18 @@ body {
   justify-content: center;
   align-items: center;
   text-shadow: 1px 1px 3px #444;
+}
+
+.tile.liquid {
+  z-index: 3;
+  opacity: .9;
+  background-size: 800% 100%;
+  animation: liquidanimation 1s infinite steps(8) alternate;
+}
+
+@keyframes liquidanimation {
+  0% { background-position: 0% }
+  100% { background-position: -800%}
 }
 
 /* info box */

@@ -1,6 +1,6 @@
 "use strict";
 
-const debugging = false;
+const debugging = true;
 
 window.addEventListener("load", start);
 window.addEventListener("resize", calculateSizes);
@@ -195,25 +195,25 @@ function canMove( object, offsetX, offsetY ) {
   let canMove = true;
   
   for( let x=leftTile; x <= rightTile; x++ ) {
-      for( let y=topTile; y <= bottomTile; y++ ) {
-        if( y < 0 ) {
-          canMove = canMove && true;
-        } else if( x >= tiles[y].length ) {
-          canMove = false;
-        } else {
-
-        
-          let tile = tiles[y][x];
-       
-          // ask if we can move to the specified position on this tile
-          // TODO: Maybe x and y should be offset rather than absolutes ...
-          canMove = canMove && canMoveToTile( object, tile, offsetX, offsetY );
-          // TODO: Can't move into boxes from below!
-        }
+    for( let y=topTile; y <= bottomTile; y++ ) {
+      if( y < 0 ) {
+        // We can move above the screen - TODO: BUT! there should be a limit, so we don't go/jump to far up!
+        canMove = canMove && true;
+      } else if( y >= tiles.length || x >= tiles[y].length ) {
+        // We can't move to a non-existing tile (don't know why the first test doesn't catch this ... )
+        canMove = false;
+      } else {
+        // Find the existing tile trying to move into
+        let tile = tiles[y][x];
+      
+        // ask if we can move to the specified position on this tile
+        // TODO: Maybe x and y should be offset rather than absolutes ...
+        canMove = canMove && canMoveToTile( object, tile, offsetX, offsetY );
       }
+    }
   }
   
-  // // Check moving platforms!
+  // // TODO: Check moving platforms!
   // platforms.forEach( platform => {
   //     // does player touch us?
   //     if( object.y-object.regY+object.hitY+object.hitH < platform.y-platform.regY &&
@@ -221,7 +221,6 @@ function canMove( object, offsetX, offsetY ) {
   //         canMove = canMove & false;
   //     }
   // });
-
   
   return canMove;
 }
@@ -246,46 +245,39 @@ function handlePlayerCollisions() {
   let bottomTile = Math.floor((player.y-player.regY+player.hitY+player.hitH) / TILESIZE);
 
   for( let x=leftTile; x <= rightTile; x++ ) {
-      for( let y=topTile; y <= bottomTile; y++ ) {
-          /* Maybe handle items later ...
-          let item = items[y][x];
-          
-          if(item != null ) {
-              if( predictiveHitTest(player,item) ) {
-                  console.log("touch item! " + item.type);
-                  if( item.type == "star" ) {
-                      // play random bell-sound
-                      let nr = Math.floor(Math.random()*4)+1;
-                      createjs.Sound.play("sndBell"+nr);
-                      // TODO: Remove with animation
-                      
-                      // remove star
-                      stage.removeChild(item);
-                      items[y][x] = null;
-                  } else if( item.type == "keyBlue") {
-                      createjs.Sound.play("sndKey");
-                      stage.removeChild(item);
-                      items[y][x] = null;
-                      
-                      player.hasKey = true;
-                  }
-              }
-          } */
-          
-          if( 0 <= y && y < tiles.length ) {
+    for( let y=topTile; y <= bottomTile; y++ ) {
+        /* Maybe handle items later ...
+        let item = items[y][x];
 
-            
-            let tile = tiles[y][x];
-            const distance = Math.hypot( (x*TILESIZE-TILESIZE/2) - (player.x-player.regX), (y*TILESIZE-TILESIZE/2) - (player.y-player.regY) );
-            
-            
-            // handle touching this tile
-            // remember - we were told that we COULD move here - now we have ...
-            if( tile.type !== "empty") {
-              touchTile( tile, distance );
+        // TODO: Should keys be items???
+        
+        if(item != null ) {
+            if( predictiveHitTest(player,item) ) {
+                console.log("touch item! " + item.type);
+                if( item.type == "star" ) {
+                    // play random bell-sound
+                    let nr = Math.floor(Math.random()*4)+1;
+                    createjs.Sound.play("sndBell"+nr);
+                    // TODO: Remove with animation
+                    
+                    // remove star
+                    stage.removeChild(item);
+                    items[y][x] = null;
+                } 
             }
-          }
+        } */
+        
+      if( 0 <= y && y < tiles.length ) {
+        let tile = tiles[y][x];
+        const distance = Math.hypot( (x*TILESIZE-TILESIZE/2) - (player.x-player.regX), (y*TILESIZE-TILESIZE/2) - (player.y-player.regY) );
+        
+        // handle touching this tile
+        // remember - we were told that we COULD move here - now we have ...
+        if( tile.type !== "empty") {
+          touchTile( tile, distance );
+        }
       }
+    }
   }
 }
 
@@ -320,10 +312,8 @@ function showSign( sign ) {
         document.querySelector("#sign").classList.add("hidden");
         document.querySelector("#sign").classList.remove("hide");
       }
-      // TODO: Make signs work again
+      // TODO: Make signs work again and again - but maybe require some interaction the second time around?
     }
-
-
   }
 }
 
@@ -470,7 +460,10 @@ function touchTile( tile, distance ) {
         levelComplete();
       }
       break;
-
+    case "liquid": 
+      // TODO: Handle liquids somehow - lava should be dangerous - icy water as well, normal water maybe? - maybe loose energy?
+      console.warn("Step in liquid!");
+      break;
     default: 
       console.log("touch " + tile.type);
 //      console.log(tile);
@@ -501,6 +494,7 @@ function canMoveToTile( object, tile, x, y ) {
         canMove = true;
       }
       break;
+    case "liquid":
     case "sign":
     case "empty":
     case "background":
@@ -572,74 +566,68 @@ function animatePlayer() {
   if( player.speedX != 0 ) {
     HTML.player.style.transform = `scaleX(${player.direction})`;
   }
-
 }    
-
-
-
 
 
 function movePlayer() {
   if( player.active ) {
-
-  
-  if( keys.space && player.jumping == false && !canMove(player,0,1) ) {
-    player.speedY = -player.jumpPower;
-    player.jumping = true;
-  }
-
-
-  if( keys.left ) {
-    player.speedX--;
-    player.direction = -1;
-    if( player.speedX < -player.walkSpeed ) {
-        player.speedX = -player.walkSpeed;
+    // Jump if not already jumping - TODO: Make allowance for double-jump?    
+    if( keys.space && player.jumping == false && !canMove(player,0,1) ) {
+      player.speedY = -player.jumpPower;
+      player.jumping = true;
     }
-  } else if( keys.right ) {
-      player.speedX++;
-      player.direction = 1;
-      if( player.speedX > player.walkSpeed ) {
-          player.speedX = player.walkSpeed;
+
+    if( keys.left ) {
+      player.speedX--;
+      player.direction = -1;
+      if( player.speedX < -player.walkSpeed ) {
+          player.speedX = -player.walkSpeed;
       }
-  } else {
-      if( player.speedX > 0 ) {
-          player.speedX--;
-      } else if( player.speedX < 0 ) {
-          player.speedX++;
-      }
-  }
+    } else if( keys.right ) {
+        player.speedX++;
+        player.direction = 1;
+        if( player.speedX > player.walkSpeed ) {
+            player.speedX = player.walkSpeed;
+        }
+    } else {
+        if( player.speedX > 0 ) {
+            player.speedX--;
+        } else if( player.speedX < 0 ) {
+            player.speedX++;
+        }
+    }
 
-
-  // test if we can't move sideways
-  if(player.speedX != 0 && !canMove(player, player.speedX, 0) ) {
-    console.log("Cant move!");
-    // we can't move the full distance, but maybe we can move a little closer ...
-    while(canMove(player, Math.sign(player.speedX), 0)) {
-        // move a pixel closer
-        player.x += Math.sign(player.speedX);
-    };
-    // and then don't move any more
-    player.speedX = 0;
-  }
-
-  player.speedY += gravity;
-      
-  // test if we can't move down (or up?)
-  if(player.speedY != 0 && !canMove(player, 0, player.speedY) ) {
-  //        console.log("Cant move down!");
+    // test if we can't move sideways
+    if(player.speedX != 0 && !canMove(player, player.speedX, 0) ) {
+      console.log("Cant move!");
       // we can't move the full distance, but maybe we can move a little closer ...
-      while(canMove(player, 0, Math.sign(player.speedY))) {
+      while(canMove(player, Math.sign(player.speedX), 0)) {
           // move a pixel closer
-          player.y += Math.sign(player.speedY);
+          player.x += Math.sign(player.speedX);
       };
       // and then don't move any more
-      player.speedY = 0;
-      player.jumping = false;
-  }  
-  
-  // finish with actually moving
-  player.x += player.speedX;
-  player.y += player.speedY;
+      player.speedX = 0;
+    }
+
+    // use gravity to drop towards the ground - always
+    player.speedY += gravity;
+      
+    // test if we can't move down (or up?)
+    if(player.speedY != 0 && !canMove(player, 0, player.speedY) ) {
+    //        console.log("Cant move down!");
+        // we can't move the full distance, but maybe we can move a little closer ...
+        while(canMove(player, 0, Math.sign(player.speedY))) {
+            // move a pixel closer
+            player.y += Math.sign(player.speedY);
+        };
+        // and then don't move any more
+        player.speedY = 0;
+        player.jumping = false;
+    }  
+    
+    // finish with actually moving
+    player.x += player.speedX;
+    player.y += player.speedY;
   }
 }
 
@@ -969,7 +957,12 @@ function buildLevel() {
         image += modifier;
       }
 
-      element.style.backgroundImage = `url('tiles/${image}.png')`;
+      // Hack for SVG-icons (When complete, all will be SVG)
+      if( !image.endsWith(".svg") ) {
+        image += ".png";
+      }
+
+      element.style.backgroundImage = `url('tiles/${image}')`;
       element.classList.add(tile.name);
       element.classList.add(tile.type);
 
@@ -1122,11 +1115,12 @@ const TileTypes = {
 
 
   "~": { name: "lava",
-         type: "platform", // Hack, should be liquid - and dangerous!
-         image: "liquidLavaTop_mid"},
+         type: "liquid", 
+         image: "liquidLava"},
   "w": { name: "water",
-         type: "platform",
-         image: "liquidWaterTop_mid"}
+         type: "liquid",
+         image: "liquidWater"
+        }
   
 }
 
