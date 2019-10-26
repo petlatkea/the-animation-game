@@ -16,8 +16,11 @@ function start() {
 
   // easy selectors
   getSelectors();
-
-  level = -1;
+  if( debugging ) {
+    level = -1;
+  } else {
+    level = 0;
+  }
   nextLevel();
 
    // register keyboard
@@ -1125,7 +1128,28 @@ const TileTypes = {
 }
 
 const levels = [
-  { number: 1,
+  { number: 0,
+    name: "Debug and test",
+    platforms: ["                   !         ! ",
+                "                      MMM      ",
+                "              !        M       ",
+                "                  XXM  M    XOX",
+                "                       M      k",
+                "         !  XOXOXM     M       ",
+                "                       M       ",
+                "  /GG\\            VV   M    RRR",
+                " /####\\    =           M    l x",
+                "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"],
+      signs: [
+              { "x": 11, "y": 8, "short": "Jump", "heading": "Did you know that", "text": "You can press 'space' to jump.<br>Use it to jump onto platforms, and into boxes.", "active": false }
+              ],
+      boxes: [
+            { "x": 9, "y": 5, "slide": "testslide-1", activated: false },
+            { "x": 13, "y": 5, "slide": "slide-2", activated: false }
+      ]
+  },
+  {     
+    number: 1,
     name: "Idea and design",
     platforms: ["                   !         ! ",
                 "                      MMM      ",

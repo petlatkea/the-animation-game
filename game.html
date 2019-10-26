@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css?family=Montserrat:300&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css?family=Ribeye+Marrow&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="animate.css" />
+    <link rel="stylesheet" href="prism.css" />
     <link rel="stylesheet" href="game.css" />
   </head>
   <body>
@@ -35,6 +36,35 @@
             </div>
           </div>
           <div id="slides">
+            <div id="testslide-1" class="slide animated hidden">
+              <h1>Test slide - code</h1>
+    
+              <div class="code">
+                  <pre><code class="language-javascript">
+    let hasGameEnded = false;
+
+    function endGame() {
+      console.log("endGame");
+      // called when the timer runs out
+
+      // have we had a game over already?
+      if (hasGameEnded === true ) {
+        // do nothing
+        console.log("ignore end game");
+      } else {
+        // if there are more than 20 points, the game is won
+        if( score >= 20 ) {
+          levelcomplete();
+        } else {
+          gameOver();
+        }
+      }
+    }</code></pre>
+                
+              </div>
+            </div>
+
+
             <div id="slide-1" class="slide animated hidden">
               <h1>Game Mechanics</h1>
 
@@ -136,16 +166,53 @@
             <div id="slide-12" class="slide animated hidden ">
               <h1>Functions &amp; events</h1>
 
-              <div class="mainimage">
-                <img src="slides/functions.png" alt="Functions" />
+              <div class="code">
+                <pre><code class="language-javascript">
+      document.querySelector("#sponge_container_5").addEventListener("click", clickEdible);
+      document.querySelector("#sponge_container_6").addEventListener("click", clickPoisonous);
+      document.querySelector("#sponge_container_7").addEventListener("click", clickEdible);
+      document.querySelector("#sponge_container_8").addEventListener("click", clickPoisonous);
+      document.querySelector("#sponge_container_9").addEventListener("click", clickEdible);
+  }
+  
+  function clickEdible() {
+      this.classList.add("disappear");
+      // get points
+      score++;
+      console.log(score);
+      // display points
+      document.querySelector('#points').textContent = score;
+      this.addEventListener("animationend", newSponge);
+  }
+  
+  function clickPoisonous() {
+      this.classList.add("disappear");
+      loseLife();
+      this.addEventListener("animationend", newSponge);
+  }</code>
+  </pre>
+    
               </div>
             </div>
 
             <div id="slide-13" class="slide animated hidden">
               <h1>Variables, counters</h1>
 
-              <div class="mainimage">
-                <img src="slides/variables.png" alt="Variables" />
+              <div class="code">
+                  <pre><code class="language-javascript">
+  let score = 0;
+  let lives = 3;
+
+  function givePoint() {
+    console.log("givePoint");
+    // add 1 point
+    score++;
+
+    // show points
+    document.querySelector("#points .number").innerHTML = score;
+  }</code>
+                    </pre>
+      
               </div>
             </div>
 
@@ -154,8 +221,24 @@
             <div id="slide-14" class="slide animated hidden">
               <h1>if (branches/decisions)</h1>
 
-              <div class="mainimage">
-                <img src="slides/if.png" alt="Variables" />
+              <div class="code">
+                <pre><code class="language-javascript">
+  function loseLife() {
+    console.log("loseLife");
+    // Check for game over
+    if(lives === 0) {
+      // no more lives left
+      gameOver();
+    } else {
+      // show current life greyed out
+      document.querySelector("#heart" + lives).classList.add("gogrey");
+
+      // and remove one life
+      lives--;
+      console.log("lives left: " + lives);
+    }
+  }</code>
+</pre>
               </div>
             </div>
 
@@ -193,8 +276,28 @@
             <div id="slide-19" class="slide animated hidden">
               <h1>Boolean</h1>
 
-              <div class="mainimage">
-                <img src="slides/boolean.png" alt="Boolean" />
+              <div class="code">
+                  <pre><code class="language-javascript">
+    let hasGameEnded = false;
+
+    function endGame() {
+      console.log("endGame");
+      // called when the timer runs out
+
+      // have we had a game over already?
+      if (hasGameEnded === true ) {
+        // do nothing
+        console.log("ignore end game");
+      } else {
+        // if there are more than 20 points, the game is won
+        if( score >= 20 ) {
+          levelcomplete();
+        } else {
+          gameOver();
+        }
+      }
+    }</code></pre>
+                
               </div>
             </div>
             <div id="slide-20" class="slide animated hidden">
@@ -273,7 +376,7 @@
         </div>
       </div>
     </div>
-
+    <script src="prism.js"></script>
     <script src="game.js"></script>
   </body>
 </html>
