@@ -377,8 +377,8 @@ body {
   position: absolute;
   top: 30%;
   left: 15%;
-  width: 15vh;
-  height: 15vh;
+  width: 14vh;
+  height: 14vh;
   background-image: url('characters/player.svg'); 
   background-position: 0px 0px;
   background-size: 700% 300%;
@@ -476,18 +476,18 @@ body {
 #player {
   /* outline: 2px solid red; */
   position: absolute;
-  top: -15vh;
+  top: 0; 
   left: 0;
-  width: 15vh;
-  height: 15vh;
+  width: 14vh;
+  height: 14vh;
 }
 
 #player .sprite {
-  background-image: url('characters/player.svg'); /* TODO: Make SVG! */
+  background-image: url('characters/player.svg');
   width: 100%;
   height: 100%;
-  background-position: 0px 0px;
-  background-size: 700% 300%;
+  background-position: 0 0;
+  background-size: 800% 300%;
 }
 
 #player .effect {
@@ -507,23 +507,17 @@ body {
   background-position: 0 0;
   animation: dust-settle .3s ease-in 1 forwards;
   transform-origin: bottom;
-
-  
-
 }
 
 #player .hitbox {
-  display: none;
-
-  
+  visibility: hidden;
   position: absolute;
   background-color:rgba(0, 128, 0, .2);
-  width: 100%;
-  top: 0;
-  left: 0;
-  height: 100%;
+  top: 2.1vh;
+  height: 9.8vh;
+  left: 3.5vh;
+  width: 7vh;
   outline: 2px dashed lightgreen;
-  
 }
 
 @keyframes dust-settle {
@@ -543,14 +537,8 @@ body {
   }
 }
 
-#player.standing, 
-#player.landing {
-  
-
-}
-
 #player.standing .sprite {
-  background-position: 0px 0px;
+  background-position: 0 0;
 }
 
 #player.idle .sprite {
@@ -566,23 +554,8 @@ body {
   }
 }
 
-#player.falling {
-  /* animation: falling 1.5s ease-in 1 forwards; */
-}
-
-@keyframes falling {
-  from {
-    transform: translateY(-15vh);
-  }
-
-  to {
-    transform: translateY(77.5vh);
-  }
-}
-
 #player.falling .sprite {
-  background-position: 0px 0px;
-  /* animation: walkcycle 1s steps(6) infinite; */
+  background-position: 0 0;
 }
 
 #player.walking .sprite {

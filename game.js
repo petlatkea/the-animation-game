@@ -6,8 +6,9 @@ window.addEventListener("load", start);
 window.addEventListener("resize", calculateSizes);
 
 const HTML = {};
-const gravity = .3;
+const gravity = .3; // TODO: Maybe gravity is also VH dependent ...
 let TILESIZE = 1;
+let VH = 1;
 
 let level = -1;
 
@@ -29,21 +30,27 @@ function start() {
 
   // start animation loop
   requestAnimationFrame( animationLoop );
+
+  calculateSizes();
 }
 
 function calculateSizes() {
-  TILESIZE = tiles[0][0].element.offsetWidth;
-  player.width = HTML.player.offsetWidth;
-  player.regX = player.width / 2;
-  player.height = HTML.player.offsetHeight;
-  player.regY = player.height /2;
+  TILESIZE = tiles[0][0].element.getBoundingClientRect().width;
+  
+  player.calculateSizes();
 
-  // TODO: These custom calculations for the hitbox, should really be configurable somehow ...
-  player.hitX = player.width/8*1.8
-  player.hitY = player.height/8*1.5;
-  player.hitW = player.width/8*4.2;
-  player.hitH = player.height/8 * 5.3;
+  // remember old position
+  const YH = player.y/VH;
+  const XH = player.x/VH;
 
+  // calculate new VH
+  VH = TILESIZE / 10;
+
+  // set new position
+  player.x = XH*VH;
+  player.y = YH*VH; // TODO: Make sure that new position isn't stuck!
+
+  player.draw();
 }
 
 function animationLoop() {
@@ -59,7 +66,7 @@ function animationLoop() {
 
     moveCamera();
   
-    drawPlayer();
+    player.draw();
   }
 }
 
@@ -81,6 +88,32 @@ const player = {
   jumpPower:  14,
   alive:  true,
   keys: [],
+
+  calculateSizes() {
+    const rect = HTML.player.getBoundingClientRect();
+
+    this.width = rect.width;
+    this.regX = this.width / 2;
+    this.height = rect.height;
+    this.regY = this.height /2;
+
+    // Get size-values of hitbox
+    const hitbox = document.querySelector("#player .hitbox");
+    this.hitX = hitbox.offsetLeft;
+    this.hitY = hitbox.offsetTop;
+    this.hitH = hitbox.offsetHeight;
+    this.hitW = hitbox.offsetWidth;
+
+    // calculate walkSpeed and jumpPower
+    this.walkSpeed = VH / 8 * 6;
+    this.jumpPower = this.walkSpeed * 2; // Something is weird about this calculation ...
+  },
+
+  draw() {
+    // TODO: Change to translate!
+    HTML.player.style.left = this.x-this.regX + "px";
+    HTML.player.style.top = this.y-this.regY + "px";
+  },
   
   // The sprite property has a setter to avoid resetting it to the same value over and over
   set sprite( spriteName ) {
@@ -445,8 +478,8 @@ function touchTile( tile, distance ) {
         break;
     case "sign": 
     console.warn("INFO");
-//      console.log(distance);
-      if( distance < TILESIZE/4 ) {
+      // console.log(`d ${distance} t ${TILESIZE}`);
+      if( distance < TILESIZE/3 ) {
         if( tile.name === "sign" ) {
           showSign( tile );
         }
@@ -459,7 +492,8 @@ function touchTile( tile, distance ) {
       player.y+= 10; // TODO: This number seems random ... check what it actually should be
       break;
     case "exit":
-      if( distance < TILESIZE/3 ) {
+        console.log(`d ${distance} t ${TILESIZE}`); 
+      if( distance < TILESIZE/2 ) {
         levelComplete();
       }
       break;
@@ -576,7 +610,7 @@ function movePlayer() {
   if( player.active ) {
     // Jump if not already jumping - TODO: Make allowance for double-jump?    
     if( keys.space && player.jumping == false && !canMove(player,0,1) ) {
-      player.speedY = -player.jumpPower;
+      player.speedY = -player.jumpPower; // TODO: Accelerate up to jump power?
       player.jumping = true;
     }
 
@@ -593,10 +627,17 @@ function movePlayer() {
             player.speedX = player.walkSpeed;
         }
     } else {
+      // no key pressed - slow down (or up) to 0 - make sure to hit 0!
         if( player.speedX > 0 ) {
             player.speedX--;
+            if( player.speedX < 0 ) {
+              player.speedX = 0;
+            }
         } else if( player.speedX < 0 ) {
             player.speedX++;
+            if( player.speedX > 0 ) {
+              player.speedX = 0;
+            }
         }
     }
 
@@ -634,17 +675,6 @@ function movePlayer() {
   }
 }
 
-function drawPlayer() {
-  HTML.player.style.left = player.x-player.regX + "px";
-  HTML.player.style.top = player.y-player.regY + "px";
-
-  const hitbox = document.querySelector("#player .hitbox");
-  hitbox.style.width = player.hitW +"px";
-  hitbox.style.height = player.hitH +"px";
-  hitbox.style.left = player.hitX + "px";
-  hitbox.style.top = player.hitY + "px";
-}
-
 function getSelectors() {
   HTML.screen = document.querySelector("#screen");
   HTML.stage = document.querySelector("#stage");
@@ -656,8 +686,9 @@ function getSelectors() {
 function resetPlayer() {
   HTML.player.className = "";
   player.x = TILESIZE;
-  player.y = 0;
+  player.y = -TILESIZE*2;
   player.active = true;
+  player.draw();
 }
 
 function dropPlayer() {
@@ -818,8 +849,9 @@ function nextLevel() {
       HTML.platforms.classList.add("blur");
     }
     
-    // hide player
-    player.y = 0; // does this work?
+    // hide player outside the screen (TODO: Should just hide directly)
+    player.y = -player.height; 
+    player.draw();
 
     buildLevel();
 

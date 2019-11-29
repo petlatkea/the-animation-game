@@ -4,13 +4,11 @@ These are some of the ideas I'd like to implement in the future, if I get the ti
 They are in no way prioritized, this is just my sketchpad for ideas!
 
 ## Responsiveness 
-Right now, it sucks. 
-
-Should still be based on the height of a tile (70x70px), and everything should scale to allow 10 tiles on any screen height. That would be the scaling factor. Right now the JavaScript does a lot of the calculations - but if it could be based on CSS or 10vh, that would be a lot simpler.
-
-Speed should also scale - it shouldn't be in px/sec, but in vhs/sec or something like that - again scaled with respect to 10 tiles screenheight.
-
-HUD should also scale accordingly - but maybe a bit different - smaller on large screens, and larger on small.
+Improved quite a bit - works with player size and (almost position) 
+Problems:
+* jump height changes too much
+* player sometimes gets stuck when resizing the screen
+* HUD should also scale accordingly - but maybe a bit different - smaller on large screens, and larger on small.
 
 ## Graphics  
 * Everything should be SVG. I've tried making some of the liquid animations from SVG spritesheets, but scaling problems make it look awful.
