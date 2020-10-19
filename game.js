@@ -363,6 +363,8 @@ function jumpIntoBox(box) {
   });
 
   function showSlide() {
+    // TODO: if another slide is already shown - close that first!
+
     // show slide
     const slide = document.querySelector("#slides #" + box.box.slide);
     // make visible
@@ -1111,8 +1113,8 @@ const levels = [
       "                   !         ! ",
       "                      MMM      ",
       "              !        M       ",
-      "                  XXM  M    XOX",
-      "                       M      k",
+      "                  !XM  M    XOX",
+      "                       MM     k",
       "         !  XOXOXM     M       ",
       "                       M       ",
       "  /GG\\            VV   M    RRR",
@@ -1124,15 +1126,16 @@ const levels = [
       { x: 9, y: 5, slide: "slide-1", activated: false },
       { x: 13, y: 5, slide: "slide-2", activated: false },
       { x: 15, y: 5, slide: "slide-3", activated: false },
-      { x: 14, y: 2, slide: "slide-4", activated: false },
-      { x: 19, y: 0, slide: "slide-5", activated: false },
-      { x: 29, y: 0, slide: "slide-6", activated: false },
-      { x: 29, y: 3, slide: "slide-7", activated: false }
+      { x: 18, y: 3, slide: "slide-4", activated: false },
+      { x: 14, y: 2, slide: "slide-5", activated: false },
+      { x: 19, y: 0, slide: "slide-6", activated: false },
+      { x: 29, y: 0, slide: "slide-7", activated: false },
+      { x: 29, y: 3, slide: "slide-8", activated: false }
     ]
   },
   {
     number: 2,
-    name: "Animations and scripting",
+    name: "Assets and Animations",
     platforms: [
       "                          ",
       "              !           ",
@@ -1156,7 +1159,7 @@ const levels = [
   },
   {
     number: 3,
-    name: "Sequences and errors",
+    name: "Scripting and counting",
     platforms: [
       "     Dx a               !  ",
       "     DDDDD        DDD      ",
@@ -1183,11 +1186,11 @@ const levels = [
   },
   {
     number: 4,
-    name: "Structure and game over",
+    name: "Branching and errors",
     platforms: [
       "                                              !",
       "                                               ",
-      "                                              Q",
+      "   !                                          Q",
       "                                       X     XX",
       "             !                        XX       ",
       "   X  X                              XXX       ",
@@ -1198,9 +1201,10 @@ const levels = [
     ],
     signs: [],
     boxes: [
-      { x: 13, y: 4, slide: "slide-18", activated: false },
-      { x: 22, y: 6, slide: "slide-19", activated: false },
-      { x: 46, y: 0, slide: "slide-20", activated: false }
+      { x: 3, y: 2, slide: "slide-18", activated: false },
+      { x: 13, y: 4, slide: "slide-19", activated: false },
+      { x: 22, y: 6, slide: "slide-20", activated: false },      
+      { x: 46, y: 0, slide: "slide-21", activated: false }
     ]
   },
   {
@@ -1220,9 +1224,9 @@ const levels = [
     ],
     signs: [],
     boxes: [
-      { x: 2, y: 6, slide: "slide-21", activated: false },
-      { x: 17, y: 0, slide: "slide-22", activated: false },
-      { x: 27, y: 6, slide: "slide-23", activated: false }
+      { x: 2, y: 6, slide: "slide-22", activated: false },
+      { x: 17, y: 0, slide: "slide-23", activated: false },
+      { x: 27, y: 6, slide: "slide-24", activated: false }
     ]
   }
 ];
