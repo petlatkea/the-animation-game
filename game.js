@@ -352,21 +352,44 @@ function showSign(sign) {
   }
 }
 
+let currentSlide = null;
+
 function jumpIntoBox(box) {
   // let box jump
   box.element.classList.add("boink");
-  box.element.addEventListener("animationend", function() {
+  box.element.addEventListener("animationend", function show() {
     if (box.box && box.box.slide) {
+      if (currentSlide && currentSlide.id != box.box.slide ) {
+        console.log("Closing ...");
+        closeSlide();
+      } 
       showSlide();
     }
     box.element.addEventListener("animationend", removeBox);
   });
 
-  function showSlide() {
-    // TODO: if another slide is already shown - close that first!
+  function closeSlide() {
+    console.log("Close slide");
+    if (currentSlide) {
+      const slide = currentSlide;
+      slide.removeEventListener("click", closeSlide);
+      keys.removeListener("Escape", closeSlide);
+      slide.classList.remove("bounceInDown");
+      slide.classList.add("bounceOutUp");
+      slide.addEventListener("animationend", hideSlide);
 
+      function hideSlide() {
+        slide.removeEventListener("animationend", hideSlide);
+        slide.classList.add("hidden");
+      }
+    }
+    currentSlide = null;
+  }
+
+  function showSlide() {
     // show slide
     const slide = document.querySelector("#slides #" + box.box.slide);
+    currentSlide = slide;
     // make visible
     slide.classList.remove("hidden");
     slide.classList.add("bounceInDown");
@@ -384,18 +407,7 @@ function jumpIntoBox(box) {
     // Also accept escapekey!
     keys.addListener("Escape", closeSlide);
 
-    function closeSlide() {
-      slide.removeEventListener("click", closeSlide);
-      keys.removeListener("Escape", closeSlide);
-      slide.classList.remove("bounceInDown");
-      slide.classList.add("bounceOutUp");
-      slide.addEventListener("animationend", hideSlide);
-
-      function hideSlide() {
-        slide.removeEventListener("animationend", hideSlide);
-        slide.classList.add("hidden");
-      }
-    }
+    
   }
 
   function removeBox() {
